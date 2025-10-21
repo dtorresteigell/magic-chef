@@ -1,8 +1,9 @@
 # Magic Chef – Your AI‑Powered Digital Cookbook (Flask + HTMX + Postgres)
 
-https://img.shields.io/badge/license-MIT-blue.svg](LICENSE)
-https://img.shields.io/badge/build-passing-brightgreen.svg]()
-[![Contributions](https://img.shields.ions-welcome-orange.svg]()
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)]()
+
 
 Magic Chef is a Flask web app with a PostgreSQL database and an HTMX-powered frontend. It lets you **create, share, and organize recipes** in your personal digital cookbook—with superpowers:
 **AI recipe generation from ingredients, recipe translation, and digitization of handwritten recipes from images**.
@@ -12,15 +13,15 @@ Magic Chef is a Flask web app with a PostgreSQL database and an HTMX-powered fro
 ## ✨ Features
 
 - **AI Recipe Generator**
-  - Turn a list of ingredients into complete recipes (title, steps, timing, servings, nutritional hints).
+  - Turn a list of ingredients into complete recipes (title, ingredients, steps, servings,...).
 - **Recipe Translation**
   - Translate any recipe to multiple languages (e.g., EN/DE/ES) with one click.
 - **Handwritten Recipe Digitization (OCR)**
-  - Upload photos/scans of handwritten recipes and convert to editable text.
+  - Upload photos/scans of handwritten recipes and add them to your cookbook.
 - **HTMX Frontend**
   - Snappy, partial-page updates for forms, tables, modals, and inline actions (no SPA framework required).
 - **Smart Search & Tags**
-  - Filter by ingredients, cuisine, tags, diet; full-text search backed by Postgres.
+  - Filter and search by ingredients, cuisine, tags, diet; full-text search backed by Postgres.
 - **Accounts & Sharing**
   - User auth (Flask-Login), private/public recipes, share links.
 - **Media Uploads**
@@ -29,13 +30,13 @@ Magic Chef is a Flask web app with a PostgreSQL database and an HTMX-powered fro
 ---
 
 ## 🏗️ Tech Stack
-- **Backend:** Python 3.11+, Flask, Jinja2, Flask-Login, Flask-WTF
-- **Frontend:** HTMX, Hyperscript (optional), Tailwind/Bootstrap (choose your CSS path)
+- **Backend:** Python 3.11+, Flask, Jinja2, Flask-Login
+- **Frontend:** HTMX, Tailwind/Bootstrap (choose your CSS path)
 - **Database:** PostgreSQL 14+, SQLAlchemy 2.x, Alembic migrations
 - **AI & Services (pluggable):**
-  - **Generation:** OpenAI (or other LLM provider)
-  - **Translation:** DeepL / Google Translate / Azure Translator
-  - **OCR:** Tesseract (local) or cloud OCR (Google Vision / Azure Cognitive Services)
+  - **Generation:** Mistral (or other LLM provider)
+  - **Translation:** Google Translate (or other cloud translator)
+  - **OCR:** Mistral OCR or another cloud OCR (Google Vision / Azure Cognitive Services)
 - **Storage:** Local filesystem or S3-compatible (via `boto3`)
 - **Dev/Ops:** `.env` config, Docker Compose (optional), pytest
 
@@ -48,37 +49,9 @@ magic-chef/
 ├─ app/
 │  ├─ __init__.py           # create_app(), extensions, blueprints
 │  ├─ config.py             # Config classes (Dev/Test/Prod)
-│  ├─ models.py             # SQLAlchemy models (User, Recipe, Step, Tag, Image, etc.)
-│  ├─ services/
-│  │  ├─ ai.py              # ingredient->recipe generation
-│  │  ├─ translate.py       # translation adapters
-│  │  └─ ocr.py             # OCR adapters
-│  ├─ blueprints/
-│  │  ├─ auth.py            # signup/login/logout
-│  │  ├─ recipes.py         # CRUD, search, tagging
-│  │  ├─ htmx.py            # HTMX endpoints/partials
-│  │  └─ uploads.py         # image upload/serve
-│  ├─ templates/
-│  │  ├─ base.html
-│  │  ├─ _flash.html
-│  │  └─ recipes/
-│  │     ├─ index.html
-│  │     ├─ show.html
-│  │     ├─ edit.html
-│  │     ├─ _form.html      # shared form
-│  │     ├─ _row.html       # HTMX list row partial
-│  │     └─ _translate_modal.html
-│  ├─ static/
-│  │  ├─ css/               # Tailwind/Bootstrap assets
-│  │  └─ js/                # htmx.min.js, hyperscript, small helpers
-│  └─ db/
-│     └─ migrations/        # Alembic scripts
-├─ tests/
-│  └─ ...                   # pytest suites
-├─ alembic.ini
+│  ├─ models.py             # SQLAlchemy models (User, Recipe, etc.)
 ├─ requirements.txt
 ├─ .env.example
-├─ docker-compose.yml
 └─ README.md
 ```
 
@@ -89,14 +62,13 @@ magic-chef/
 
 - **Python** 3.11+
 - **PostgreSQL** 14+ (local or container)
-- **Tesseract** (if using local OCR): install binary & language packs (e.g., `eng`, `de`)
-- **API keys** for selected providers (e.g., OpenAI, DeepL/Google Translate, Cloud OCR)
+- **API keys** for selected providers (e.g., Mistral, OpenAI, DeepL/Google Translate, Cloud OCR)
 - (Optional) **Docker** + **Docker Compose**
 
 ### 1) Clone & Create Virtual Env
 
 ```bash
-git clone https://github.com/your-username/magic-chef.git
+git clone https://github.com/dtorresteigell/magic-chef.git
 cd magic-chef
 
 python -m venv .venv
@@ -135,8 +107,8 @@ MAX_CONTENT_LENGTH_MB=10
 DATABASE_URL=postgresql+psycopg://magic_chef:magic_chef@localhost:5432/magic_chef_dev
 
 # AI Generation
-AI_PROVIDER=openai
-OPENAI_API_KEY=sk-...
+AI_PROVIDER=mistral
+...
 
 # Translation
 TRANSLATION_PROVIDER=deepl   # deepl|google|azure
