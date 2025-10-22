@@ -1,0 +1,10 @@
+{% if tags %}
+{% for tag in tags %}
+<button onclick="searchByTag('{{ tag }}')"
+    class="bg-orange-100 text-orange-800 text-xs px-3 py-1 rounded-full hover:bg-orange-200 transition-colors">
+    {{ tag }}
+</button>
+{% endfor %}
+{% else %}
+<p class="text-sm text-gray-500">No tags yet</p>
+{% endif %}

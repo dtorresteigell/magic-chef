@@ -1,0 +1,49 @@
+# Core Framework
+flask>=3.0.0
+
+# Database and ORM
+Flask-SQLAlchemy>=3.1.1
+SQLAlchemy>=2.0.0
+psycopg2-binary>=2.9.6
+
+# Form Handling and CSRF Protection (optional but recommended)
+Flask-WTF>=1.2.1
+email-validator>=2.1.0.post1
+
+# Password Hashing
+Werkzeug>=3.0.1
+
+# Environment Variables
+python-dotenv>=1.0.1
+
+# Web Server Gateway Interface
+gunicorn>=20.1.0
+
+# AI Integration
+mistralai
+
+# Email (optional for Phase 4)
+Flask-Mail>=0.9.1
+
+# Optional extras (depending on your current app)
+# — Used if your app uses PDFs, AI recipes, etc.
+flask_login>=0.6.3
+requests>=2.31.0
+pillow>=10.0.0
+ipykernel
+reportlab==4.0.7
+
+# Development Tools
+pytest>=8.0.0
+flake8>=7.0.0
+
+# Translation (optional)
+googletrans>=4.0.2
+
+# Optional
+Flask-Limiter
+Flask-Migrate
+alembic
+Authlib
+Flask-Uploads
+Flask-Images

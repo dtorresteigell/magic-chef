@@ -1,3 +1,19 @@
+# Data files
+data/
+# Ignore all files in /app/static/images
+/app/static/images/*
+/app/static/images/thumbnails/*
+# But do NOT ignore .gitkeep
+!/app/static/images/.gitkeep
+!/app/static/images/thumbnails/.gitkeep
+
+# Backup files
+backup_*/
+backup_*.*
+
+# PDFs
+*.pdf
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -77,6 +93,7 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+*.ipynb
 
 # IPython
 profile_default/
@@ -143,6 +160,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.venv/
 
 # Spyder project settings
 .spyderproject

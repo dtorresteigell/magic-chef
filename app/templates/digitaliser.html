@@ -1,0 +1,455 @@
+{% extends "base.html" %}
+
+{% block title %}Recipe Digitaliser - Recipe App{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold text-gray-900 mb-2">📸 Recipe Digitaliser</h1>
+    <p class="text-gray-600">Transform handwritten recipes into digital format with AI-powered OCR</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Left Column: Upload -->
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Upload Recipe Image</h2>
+
+            <!-- Upload Area -->
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-orange-500 transition-colors cursor-pointer"
+                id="upload-area" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"
+                ondragleave="handleDragLeave(event)">
+                <input type="file" id="file-input" accept=".png,.jpg,.jpeg,.gif,.webp,.pdf,.tiff" class="hidden"
+                    onchange="handleFileSelect(event)">
+                <label for="file-input" class="cursor-pointer block">
+                    <div class="space-y-2">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none"
+                            viewBox="0 0 48 48">
+                            <path
+                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <div class="text-sm text-gray-600">
+                            <span class="font-medium text-orange-600 hover:text-orange-700">Click to upload</span>
+                            or drag and drop
+                        </div>
+                        <p class="text-xs text-gray-500">PNG, JPG, GIF, WebP, PDF, TIFF</p>
+                    </div>
+                </label>
+            </div>
+
+            <!-- File Info -->
+            <div id="file-info" class="mt-4 hidden">
+                <div class="bg-gray-50 rounded-lg p-3">
+                    <p class="text-sm font-medium text-gray-900">📄 <span id="file-name"></span></p>
+                    <p class="text-xs text-gray-500 mt-1"><span id="file-size"></span></p>
+                </div>
+            </div>
+
+            <!-- Process Button -->
+            <button id="process-btn" onclick="processImage()" disabled
+                class="w-full mt-4 bg-orange-600 text-white py-3 px-6 rounded-lg hover:bg-orange-700 font-medium disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+                🔄 Process Image
+            </button>
+
+            <!-- Loading -->
+            <div id="loading-spinner" class="hidden mt-4 text-center">
+                <svg class="animate-spin h-8 w-8 mx-auto text-orange-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+                <p class="text-sm text-gray-600 mt-2">Processing image...</p>
+            </div>
+
+            <!-- Tips -->
+            <div class="mt-6 pt-6 border-t">
+                <h3 class="text-sm font-medium text-gray-700 mb-2">💡 Tips for Best Results</h3>
+                <ul class="text-xs text-gray-600 space-y-1">
+                    <li>✓ Use clear, well-lit photos</li>
+                    <li>✓ Keep handwriting legible</li>
+                    <li>✓ Include all ingredients and steps</li>
+                    <li>✓ Avoid blurry or angled photos</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Recipe Preview & Editor -->
+    <div class="lg:col-span-2">
+
+        <!-- Initial State -->
+        <div id="initial-state" class="text-center py-12 bg-white rounded-lg shadow-md">
+            <div class="text-6xl mb-4">📸</div>
+            <h2 class="text-2xl font-semibold text-gray-900 mb-2">Ready to digitalise a recipe?</h2>
+            <p class="text-gray-600">Upload a photo of your handwritten recipe and let AI do the work!</p>
+        </div>
+
+        <!-- Processing State -->
+        <div id="processing-state" class="hidden text-center py-12 bg-white rounded-lg shadow-md">
+            <svg class="animate-spin h-16 w-16 mx-auto text-orange-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+            </svg>
+            <p class="text-gray-600 mt-4 text-lg">Digitising your recipe...</p>
+            <p class="text-gray-500 mt-1 text-sm">This may take a moment</p>
+        </div>
+
+        <!-- Recipe Editor -->
+        <div id="recipe-editor" class="hidden">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-semibold text-gray-900 mb-6">Edit Your Recipe</h2>
+
+                <!-- Tabs for Edit/OCR Text -->
+                <div class="flex space-x-4 mb-6 border-b">
+                    <button onclick="showTab('edit')" class="px-4 py-2 border-b-2 font-medium" id="edit-tab">
+                        ✏️ Edit Recipe
+                    </button>
+                    <button onclick="showTab('ocr')" class="px-4 py-2 border-b-2 font-medium text-gray-500"
+                        id="ocr-tab">
+                        📝 Extracted Text
+                    </button>
+                </div>
+
+                <!-- Edit Tab -->
+                <div id="edit-content">
+                    <form id="recipe-form" class="space-y-6">
+                        <!-- Title -->
+                        <div>
+                            <label for="recipe-title" class="block text-sm font-medium text-gray-700 mb-2">
+                                Recipe Title
+                            </label>
+                            <input type="text" id="recipe-title"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                                required>
+                        </div>
+
+                        <!-- Description -->
+                        <div>
+                            <label for="recipe-description" class="block text-sm font-medium text-gray-700 mb-2">
+                                Description
+                            </label>
+                            <textarea id="recipe-description" rows="3"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                                required></textarea>
+                        </div>
+
+                        <!-- Servings -->
+                        <div>
+                            <label for="recipe-servings" class="block text-sm font-medium text-gray-700 mb-2">
+                                Servings
+                            </label>
+                            <input type="number" id="recipe-servings" min="1"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                                required>
+                        </div>
+
+                        <!-- Ingredients -->
+                        <div>
+                            <label for="recipe-ingredients" class="block text-sm font-medium text-gray-700 mb-2">
+                                Ingredients
+                            </label>
+                            <p class="text-sm text-gray-500 mb-2">
+                                Format: <code class="bg-gray-100 px-1">ingredient | description</code> (one per line)
+                            </p>
+                            <textarea id="recipe-ingredients" rows="8"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 font-mono text-sm"
+                                required></textarea>
+                        </div>
+
+                        <!-- Instructions -->
+                        <div>
+                            <label for="recipe-instructions" class="block text-sm font-medium text-gray-700 mb-2">
+                                Instructions
+                            </label>
+                            <p class="text-sm text-gray-500 mb-2">One step per line</p>
+                            <textarea id="recipe-instructions" rows="8"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                                required></textarea>
+                        </div>
+
+                        <!-- Notes -->
+                        <div>
+                            <label for="recipe-notes" class="block text-sm font-medium text-gray-700 mb-2">
+                                Notes
+                            </label>
+                            <p class="text-sm text-gray-500 mb-2">One note per line</p>
+                            <textarea id="recipe-notes" rows="3"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"></textarea>
+                        </div>
+
+                        <!-- Tags -->
+                        <div>
+                            <label for="recipe-tags" class="block text-sm font-medium text-gray-700 mb-2">
+                                Tags
+                            </label>
+                            <p class="text-sm text-gray-500 mb-2">Comma-separated</p>
+                            <input type="text" id="recipe-tags"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500">
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="flex space-x-4 pt-4">
+                            <button type="button" onclick="saveRecipe()"
+                                class="flex-1 bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 font-medium">
+                                💾 Save Recipe
+                            </button>
+                            <button type="button" onclick="discardRecipe()"
+                                class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium">
+                                ← Start Over
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- OCR Text Tab -->
+                <div id="ocr-content" class="hidden">
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <p class="text-sm text-gray-600 mb-2">Raw extracted text from image:</p>
+                        <div id="ocr-text"
+                            class="bg-white rounded p-4 border border-gray-200 max-h-96 overflow-y-auto whitespace-pre-wrap text-sm font-mono text-gray-700">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    let currentRecipeData = null;
+    let currentOCRText = null;
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        document.getElementById('upload-area').classList.add('bg-orange-50', 'border-orange-500');
+    }
+
+    function handleDragLeave(e) {
+        e.preventDefault();
+        document.getElementById('upload-area').classList.remove('bg-orange-50', 'border-orange-500');
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        document.getElementById('upload-area').classList.remove('bg-orange-50', 'border-orange-500');
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            document.getElementById('file-input').files = files;
+            handleFileSelect({ target: { files: files } });
+        }
+    }
+
+    function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (file) {
+            document.getElementById('file-name').textContent = file.name;
+            document.getElementById('file-size').textContent = `${(file.size / 1024).toFixed(2)} KB`;
+            document.getElementById('file-info').classList.remove('hidden');
+            document.getElementById('process-btn').disabled = false;
+        }
+    }
+
+    function processImage() {
+        const file = document.getElementById('file-input').files[0];
+        if (!file) {
+            alert('Please select a file first');
+            return;
+        }
+
+        // Show processing state
+        document.getElementById('initial-state').classList.add('hidden');
+        document.getElementById('processing-state').classList.remove('hidden');
+        document.getElementById('recipe-editor').classList.add('hidden');
+        document.getElementById('process-btn').disabled = true;
+        document.getElementById('loading-spinner').classList.remove('hidden');
+
+        // Upload and process
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('{{ url_for("digitaliser.upload_and_ocr") }}', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentRecipeData = data.recipe;
+                    currentOCRText = data.ocr_text;
+                    displayRecipeEditor(data.recipe);
+                } else {
+                    alert('Error: ' + data.error);
+                    resetProcessing();
+                }
+            })
+            .catch(error => {
+                alert('Network error: ' + error);
+                resetProcessing();
+            })
+            .finally(() => {
+                document.getElementById('loading-spinner').classList.add('hidden');
+                document.getElementById('process-btn').disabled = false;
+            });
+    }
+
+    function displayRecipeEditor(recipe) {
+        // Fill form
+        document.getElementById('recipe-title').value = recipe.title;
+        document.getElementById('recipe-description').value = recipe.description;
+        document.getElementById('recipe-servings').value = recipe.servings;
+
+        // Ingredients
+        const ingredientsText = Object.entries(recipe.ingredients)
+            .map(([key, value]) => `${key} | ${value}`)
+            .join('\n');
+        document.getElementById('recipe-ingredients').value = ingredientsText;
+
+        // Instructions
+        document.getElementById('recipe-instructions').value = recipe.instructions.join('\n');
+
+        // Notes
+        document.getElementById('recipe-notes').value = recipe.notes.join('\n');
+
+        // Tags
+        document.getElementById('recipe-tags').value = recipe.tags.join(', ');
+
+        // OCR text
+        document.getElementById('ocr-text').textContent = currentOCRText;
+
+        // Show editor
+        document.getElementById('processing-state').classList.add('hidden');
+        document.getElementById('recipe-editor').classList.remove('hidden');
+        showTab('edit');
+    }
+
+    function showTab(tab) {
+        if (tab === 'edit') {
+            document.getElementById('edit-content').classList.remove('hidden');
+            document.getElementById('ocr-content').classList.add('hidden');
+            document.getElementById('edit-tab').classList.add('border-b-2', 'border-orange-600', 'text-gray-900');
+            document.getElementById('edit-tab').classList.remove('border-b-0', 'text-gray-500');
+            document.getElementById('ocr-tab').classList.add('border-b-0', 'text-gray-500');
+            document.getElementById('ocr-tab').classList.remove('border-b-2', 'border-orange-600', 'text-gray-900');
+        } else {
+            document.getElementById('edit-content').classList.add('hidden');
+            document.getElementById('ocr-content').classList.remove('hidden');
+            document.getElementById('ocr-tab').classList.add('border-b-2', 'border-orange-600', 'text-gray-900');
+            document.getElementById('ocr-tab').classList.remove('border-b-0', 'text-gray-500');
+            document.getElementById('edit-tab').classList.add('border-b-0', 'text-gray-500');
+            document.getElementById('edit-tab').classList.remove('border-b-2', 'border-orange-600', 'text-gray-900');
+        }
+    }
+
+    function saveRecipe() {
+        // Get form data
+        const recipeData = {
+            title: document.getElementById('recipe-title').value,
+            description: document.getElementById('recipe-description').value,
+            servings: parseInt(document.getElementById('recipe-servings').value),
+            ingredients: {},
+            instructions: [],
+            notes: [],
+            tags: []
+        };
+
+        // Parse ingredients
+        const ingredientsText = document.getElementById('recipe-ingredients').value;
+        ingredientsText.split('\n').forEach(line => {
+            if (line.includes('|')) {
+                const [key, value] = line.split('|', 2);
+                recipeData.ingredients[key.trim()] = value.trim();
+            }
+        });
+
+        // Parse instructions
+        const instructionsText = document.getElementById('recipe-instructions').value;
+        recipeData.instructions = instructionsText.split('\n').filter(line => line.trim());
+
+        // Parse notes
+        const notesText = document.getElementById('recipe-notes').value;
+        if (notesText.trim()) {
+            recipeData.notes = notesText.split('\n').filter(line => line.trim());
+        }
+
+        // Parse tags
+        const tagsText = document.getElementById('recipe-tags').value;
+        if (tagsText.trim()) {
+            recipeData.tags = tagsText.split(',').map(tag => tag.trim()).filter(tag => tag);
+        }
+
+        // Add digitalised tag
+        if (!recipeData.tags.includes('digitalised')) {
+            recipeData.tags.push('digitalised');
+        }
+
+        // Save to database
+        fetch('{{ url_for("digitaliser.save_recipe") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                recipe: recipeData
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    resetToStart();
+                } else {
+                    alert('Error saving recipe: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Network error: ' + error);
+            });
+    }
+
+    function discardRecipe() {
+        if (confirm('Discard this recipe and start over?')) {
+            resetToStart();
+        }
+    }
+
+    function resetToStart() {
+        document.getElementById('initial-state').classList.remove('hidden');
+        document.getElementById('recipe-editor').classList.add('hidden');
+        document.getElementById('file-input').value = '';
+        document.getElementById('file-info').classList.add('hidden');
+        document.getElementById('process-btn').disabled = true;
+        currentRecipeData = null;
+        currentOCRText = null;
+    }
+
+    function resetProcessing() {
+        document.getElementById('initial-state').classList.remove('hidden');
+        document.getElementById('processing-state').classList.add('hidden');
+        document.getElementById('recipe-editor').classList.add('hidden');
+        document.getElementById('loading-spinner').classList.add('hidden');
+        document.getElementById('process-btn').disabled = false;
+    }
+</script>
+
+<style>
+    #edit-tab {
+        border-bottom-width: 2px;
+        border-bottom-color: #ea580c;
+        color: #111827;
+    }
+
+    #ocr-tab {
+        border-bottom-width: 0;
+        color: #6b7280;
+    }
+</style>
+{% endblock %}

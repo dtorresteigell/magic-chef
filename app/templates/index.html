@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Recipe App{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold text-gray-900 mb-2">My Recipes</h1>
+    <p class="text-gray-600">Browse your delicious recipe collection</p>
+</div>
+
+<!-- Quick Search Bar -->
+<div class="mb-6 bg-white rounded-lg shadow-md p-4">
+    <div class="flex items-center space-x-3">
+        <div class="flex-1">
+            <input type="text" id="quick-search"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                placeholder="🔍 Quick search recipes...">
+        </div>
+        <a href="{{ url_for('search.search') }}"
+            class="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium whitespace-nowrap">
+            Advanced Search
+        </a>
+    </div>
+    <div id="quick-results" class="mt-4"></div>
+</div>
+
+<script>
+    // Quick search on home page
+    const quickSearch = document.getElementById('quick-search');
+    const quickResults = document.getElementById('quick-results');
+    let searchTimeout;
+
+    quickSearch.addEventListener('input', function (e) {
+        clearTimeout(searchTimeout);
+        const query = e.target.value.trim();
+
+        if (query.length < 2) {
+            quickResults.innerHTML = '';
+            return;
+        }
+
+        searchTimeout = setTimeout(() => {
+            fetch(`{{ url_for('search.search_results') }}?q=${encodeURIComponent(query)}`)
+                .then(response => response.text())
+                .then(html => {
+                    quickResults.innerHTML = html;
+                });
+        }, 300);
+    });
+</script>
+
+{% if recipes %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for recipe in recipes %}
+    {% include 'components/recipe_card.html' %}
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-12">
+    <div class="text-6xl mb-4">📭</div>
+    <h2 class="text-2xl font-semibold text-gray-900 mb-2">No recipes yet</h2>
+    <p class="text-gray-600 mb-6">Start building your collection!</p>
+    <a href="{{ url_for('main.recipe_new') }}"
+        class="inline-block bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 font-medium">
+        Create Your First Recipe
+    </a>
+</div>
+{% endif %}
+{% endblock %}

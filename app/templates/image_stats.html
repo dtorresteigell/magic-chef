@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Image Statistics{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-4xl font-bold text-gray-900 mb-8">Image Statistics</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="text-4xl mb-2">📝</div>
+            <div class="text-3xl font-bold text-gray-900">{{ stats.total_recipes }}</div>
+            <div class="text-gray-600">Total Recipes</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="text-4xl mb-2">🖼️</div>
+            <div class="text-3xl font-bold text-orange-600">{{ stats.recipes_with_images }}</div>
+            <div class="text-gray-600">Recipes with Images</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="text-4xl mb-2">📁</div>
+            <div class="text-3xl font-bold text-gray-900">{{ stats.total_images }}</div>
+            <div class="text-gray-600">Image Files</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="text-4xl mb-2">💾</div>
+            <div class="text-3xl font-bold text-gray-900">{{ "%.2f"|format(stats.total_size_mb) }} MB</div>
+            <div class="text-gray-600">Total Image Size</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="text-4xl mb-2">🔍</div>
+            <div class="text-3xl font-bold text-orange-600">{{ stats.total_thumbnails }}</div>
+            <div class="text-gray-600">Thumbnails</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="text-4xl mb-2">⚡</div>
+            <div class="text-3xl font-bold text-green-600">{{ "%.2f"|format(stats.thumb_size_mb) }} MB</div>
+            <div class="text-gray-600">Thumbnail Size</div>
+        </div>
+    </div>
+
+    <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h2 class="text-xl font-semibold text-blue-900 mb-2">💡 Optimization Benefits</h2>
+        <ul class="space-y-2 text-blue-800">
+            <li>✅ Images automatically resized to maximum 800x800px</li>
+            <li>✅ Thumbnails created at 300x300px for fast loading</li>
+            <li>✅ JPEG quality optimized to 85%</li>
+            <li>✅ Lazy loading on image cards</li>
+            <li>✅ Fallback to original if thumbnail missing</li>
+        </ul>
+    </div>
+
+    <div class="mt-6">
+        <a href="{{ url_for('main.index') }}"
+            class="inline-block bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700">
+            ← Back to Recipes
+        </a>
+    </div>
+</div>
+{% endblock %}

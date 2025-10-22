@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Recipe App{% endblock %}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- htmx -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Custom styles -->
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        /* Loading indicator - improved */
+        .htmx-indicator {
+            display: none;
+        }
+
+        .htmx-request .htmx-indicator {
+            display: block;
+        }
+
+        .htmx-request.search-loading {
+            display: flex !important;
+        }
+
+        .htmx-request.tag-loading {
+            display: flex !important;
+        }
+
+        /* Smooth transitions */
+        .htmx-swapping {
+            opacity: 0;
+            transition: opacity 200ms ease-out;
+        }
+
+        /* Fade in results */
+        .search-results {
+            animation: fadeIn 300ms ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Line clamp for descriptions */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Left section -->
+                <div class="flex items-center">
+                    <a href="{{ url_for('main.index') }}" class="text-2xl font-bold text-orange-600">
+                        🍳 Recipe App
+                    </a>
+                </div>
+
+                <!-- Right section -->
+                <div class="flex items-center space-x-4 relative">
+                    <!-- Regular links -->
+                    <a href="{{ url_for('main.index') }}"
+                        class="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium">
+                        Home
+                    </a>
+                    <a href="{{ url_for('table_view.index') }}"
+                        class="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium">
+                        📊 Table View
+                    </a>
+                    <a href="{{ url_for('search.search') }}"
+                        class="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium">
+                        🔎 Search
+                    </a>
+                    <a href="{{ url_for('pdf.select_recipes') }}"
+                        class="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium">
+                        📄 Create Cookbook
+                    </a>
+
+                    <!-- ✨ AI Tools dropdown -->
+                    <div class="relative group">
+                        <button
+                            class="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
+                            ✨ AI Tools
+                            <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div
+                            class="absolute hidden group-hover:block bg-white shadow-lg rounded-md py-1 w-48 right-0 z-50">
+                            <a href="{{ url_for('ai_recipes.index') }}"
+                                class="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 text-sm">
+                                🤖 Generate Recipes
+                            </a>
+                            <a href="{{ url_for('digitaliser.index') }}"
+                                class="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 text-sm">
+                                📸 Digitaliser
+                            </a>
+                        </div>
+                    </div>
+
+                    {% if current_user.is_authenticated %}
+                    <!-- 👤 User menu -->
+                    <div class="relative group">
+                        <button
+                            class="flex items-center justify-center w-9 h-9 rounded-full bg-orange-500 text-white font-semibold focus:outline-none">
+                            {% if current_user.first_name %}
+                            {{ current_user.first_name[0]|upper }}
+                            {% else %}
+                            {{ current_user.username[0]|upper }}
+                            {% endif %}
+                        </button>
+                        <div
+                            class="absolute hidden group-hover:block bg-white shadow-lg rounded-md py-1 w-48 right-0 mt-1 z-50">
+                            <a href="{{ url_for('main.recipe_new') }}"
+                                class="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 text-sm">
+                                ➕ New Recipe
+                            </a>
+                            <a href="{{ url_for('main.settings') }}"
+                                class="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 text-sm">
+                                ⚙️ Settings
+                            </a>
+                            <div class="border-t my-1"></div>
+                            <a href="{{ url_for('auth.logout') }}"
+                                class="block px-4 py-2 text-red-600 hover:bg-orange-50 hover:text-red-700 text-sm">
+                                🚪 Logout
+                            </a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <!-- If not logged in -->
+                    <a href="{{ url_for('auth.login') }}"
+                        class="bg-orange-600 text-white hover:bg-orange-700 px-4 py-2 rounded-md text-sm font-medium">
+                        Login
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- Flash Messages -->
+    <div id="flash-messages" hx-swap-oob="true">
+        {% include "components/flash_messages.html" %}
+    </div>
+
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <p class="text-center text-gray-500 text-sm">
+                Recipe App © 2025 - Made with Flask & ❤️
+            </p>
+        </div>
+    </footer>
+</body>
+
+</html>
+
+<script>
+    document.querySelectorAll('.dropdown').forEach(function (dropdown) {
+        dropdown.addEventListener('mouseenter', function () {
+            const menu = dropdown.querySelector('.dropdown-menu');
+            new bootstrap.Dropdown(dropdown.querySelector('.dropdown-toggle')).show();
+        });
+        dropdown.addEventListener('mouseleave', function () {
+            const menu = dropdown.querySelector('.dropdown-menu');
+            new bootstrap.Dropdown(dropdown.querySelector('.dropdown-toggle')).hide();
+        });
+    });
+</script>

@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Create PDF Cookbook - Recipe App{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold text-gray-900 mb-2">Create PDF Cookbook</h1>
+    <p class="text-gray-600">Select recipes to include in your cookbook</p>
+</div>
+
+<form method="POST" action="{{ url_for('pdf.cookbook') }}" id="cookbook-form">
+    <!-- Cookbook Title -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+            📚 Cookbook Title
+        </label>
+        <input type="text" id="title" name="title" value="My Recipe Collection" required
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+            placeholder="e.g., Autumn Comfort Food Collection">
+    </div>
+
+    <!-- Selection Controls -->
+    <div class="bg-white rounded-lg shadow-md p-4 mb-6 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <button type="button" onclick="selectAll()"
+                class="text-sm text-orange-600 hover:text-orange-700 font-medium">
+                Select All
+            </button>
+            <button type="button" onclick="selectNone()" class="text-sm text-gray-600 hover:text-gray-700 font-medium">
+                Select None
+            </button>
+            <span id="selection-count" class="text-sm text-gray-500">
+                0 recipes selected
+            </span>
+        </div>
+
+        <button type="submit"
+            class="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
+            id="generate-btn" disabled>
+            📄 Generate PDF Cookbook
+        </button>
+    </div>
+
+    <!-- Recipe Selection -->
+    {% if recipes %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for recipe in recipes %}
+        <label class="cursor-pointer">
+            <input type="checkbox" name="recipe_ids" value="{{ recipe.id }}" class="recipe-checkbox hidden"
+                onchange="updateSelection()">
+            <div
+                class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all border-2 border-transparent checkbox-card">
+                <!-- Recipe Image -->
+                <div class="relative">
+                    {% if recipe.image_filename %}
+                    <img src="{{ url_for('static', filename='images/recipes/thumbnails/thumb_' + recipe.image_filename) }}"
+                        alt="{{ recipe.title }}" class="w-full h-48 object-cover"
+                        onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/recipes/' + recipe.image_filename) }}';">
+                    {% else %}
+                    <div
+                        class="w-full h-48 bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
+                        <span class="text-6xl">🍽️</span>
+                    </div>
+                    {% endif %}
+
+                    <!-- Checkbox indicator -->
+                    <div class="checkbox-indicator absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg hidden">
+                        <svg class="w-6 h-6 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Recipe Content -->
+                <div class="p-5">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-2">
+                        {{ recipe.title }}
+                    </h2>
+
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+                        {{ recipe.description }}
+                    </p>
+
+                    <!-- Tags -->
+                    {% if recipe.tags_list %}
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        {% for tag in recipe.tags_list[:3] %}
+                        <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded">
+                            {{ tag }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Meta Info -->
+                    <div class="flex items-center justify-between text-sm text-gray-500">
+                        <span>🍽️ {{ recipe.servings }} servings</span>
+                        <span>📝 {{ recipe.instructions_list|length }} steps</span>
+                    </div>
+                </div>
+            </div>
+        </label>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12 bg-white rounded-lg shadow-md">
+        <div class="text-6xl mb-4">📭</div>
+        <h2 class="text-2xl font-semibold text-gray-900 mb-2">No recipes yet</h2>
+        <p class="text-gray-600 mb-6">Create some recipes first!</p>
+        <a href="{{ url_for('main.recipe_new') }}"
+            class="inline-block bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 font-medium">
+            Create Your First Recipe
+        </a>
+    </div>
+    {% endif %}
+</form>
+
+<style>
+    .recipe-checkbox:checked+.checkbox-card {
+        border-color: #ea580c;
+        box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+    }
+
+    .recipe-checkbox:checked+.checkbox-card .checkbox-indicator {
+        display: block !important;
+    }
+</style>
+
+<script>
+    // Pre-select recipes from URL params (from table view)
+    window.addEventListener('DOMContentLoaded', function () {
+        const params = new URLSearchParams(window.location.search);
+        const preselect = params.getAll('preselect');
+
+        if (preselect.length > 0) {
+            preselect.forEach(id => {
+                const checkbox = document.querySelector(`input[value="${id}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            });
+            updateSelection();
+        }
+    });
+    function updateSelection() {
+        const checkboxes = document.querySelectorAll('.recipe-checkbox');
+        const checked = document.querySelectorAll('.recipe-checkbox:checked');
+        const count = checked.length;
+
+        document.getElementById('selection-count').textContent = `${count} recipe${count !== 1 ? 's' : ''} selected`;
+        document.getElementById('generate-btn').disabled = count === 0;
+    }
+
+    function selectAll() {
+        document.querySelectorAll('.recipe-checkbox').forEach(cb => {
+            cb.checked = true;
+        });
+        updateSelection();
+    }
+
+    function selectNone() {
+        document.querySelectorAll('.recipe-checkbox').forEach(cb => {
+            cb.checked = false;
+        });
+        updateSelection();
+    }
+
+    // Initialize
+    updateSelection();
+</script>
+{% endblock %}

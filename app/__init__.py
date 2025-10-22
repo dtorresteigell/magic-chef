@@ -1,0 +1,85 @@
+# app/__init__.py
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_login import current_user
+from flask_login import LoginManager
+from flask_mail import Mail
+from sqlalchemy import text
+import time
+from sqlalchemy.exc import OperationalError
+from config import DevConfig, ProdConfig
+import os
+
+db = SQLAlchemy()
+migrate = Migrate()
+
+from app.models import User
+login_manager = LoginManager()
+login_manager.login_view = "auth.login"
+
+mail = Mail()
+
+def wait_for_db(max_attempts=10, delay=1):
+    """Wait until database is reachable (used at startup in Docker environments)"""
+    for attempt in range(max_attempts):
+        try:
+            db.session.execute(text("SELECT 1"))
+            print("✅ Database is ready.")
+            return
+        except OperationalError as e:
+            print(f"⚠️ Waiting for database... ({attempt + 1}/{max_attempts}) - {e}")
+            time.sleep(delay)
+    raise RuntimeError("❌ Database not ready after multiple attempts.")
+
+
+def create_app():
+    app = Flask(__name__)
+    env = os.environ.get("FLASK_ENV", "development")
+    app.config.from_object(ProdConfig if env == "production" else DevConfig)
+    mail.init_app(app)
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(user_id)
+    
+    # Initialize extensions
+    db.init_app(app)
+    migrate.init_app(app, db)
+    
+    with app.app_context():
+        wait_for_db()  # ensures Postgres is ready before continuing
+        # Create tables if they don't exist yet
+        db.create_all()
+        
+    
+    # Ensure required directories exist
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    os.makedirs(app.config['PDF_FOLDER'], exist_ok=True)
+    os.makedirs(os.path.join(app.instance_path, '..', 'data'), exist_ok=True)
+    
+    # Register blueprints
+    from app.routes import main, search, pdf, ai_recipes, table_view, digitaliser, auth
+    app.register_blueprint(main.bp)
+    app.register_blueprint(search.bp)
+    app.register_blueprint(pdf.bp)
+    app.register_blueprint(ai_recipes.bp)
+    app.register_blueprint(table_view.bp)
+    app.register_blueprint(digitaliser.bp)
+    app.register_blueprint(auth.bp)
+    
+    # Create database tables
+    with app.app_context():
+        db.create_all()
+    
+    login_manager.init_app(app)
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(user_id)
+
+    # @app.context_processor
+    # def inject_user():
+    #     return dict(current_user=current_user)
+    
+    return app
