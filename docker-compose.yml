@@ -1,14 +1,37 @@
-version: '3.8'
+version: "3.9"
+
 services:
   db:
     image: postgres:16
+    container_name: cookbook-db
+    restart: always
     environment:
-      POSTGRES_DB: cookbook
       POSTGRES_USER: cook
       POSTGRES_PASSWORD: pass
+      POSTGRES_DB: cookbook
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: cookbook-app
+    restart: always
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://cook:pass@db:5432/cookbook
+      - FLASK_ENV=development
+      - FLASK_APP=app:create_app
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - .:/app
+      - ./app/static:/app/app/static
+      - ./pdf:/app/pdf
+    ports:
+      - "5000:5000"
+
 volumes:
-  pgdata:
+  postgres_data:
