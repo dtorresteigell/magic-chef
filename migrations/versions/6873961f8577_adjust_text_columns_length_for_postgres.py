@@ -56,7 +56,11 @@ def upgrade():
                existing_type=sa.TEXT(),
                type_=sa.String(),
                existing_nullable=True)
-        batch_op.drop_index(batch_op.f('idx_16431_ix_recipes_title'))
+        try:
+              batch_op.drop_index(batch_op.f('idx_16431_ix_recipes_title'))
+        except Exception:
+              pass
+
         batch_op.create_index(batch_op.f('ix_recipes_title'), ['title'], unique=False)
 
     with op.batch_alter_table('users', schema=None) as batch_op:
@@ -87,8 +91,14 @@ def upgrade():
                existing_type=sa.TEXT(),
                type_=sa.String(length=100),
                existing_nullable=True)
-        batch_op.drop_index(batch_op.f('idx_16421_ix_users_email'))
-        batch_op.drop_index(batch_op.f('idx_16421_ix_users_username'))
+        try:        
+              batch_op.drop_index(batch_op.f('idx_16421_ix_users_email'))
+        except Exception:
+              pass
+        try:      
+              batch_op.drop_index(batch_op.f('idx_16421_ix_users_username'))
+        except Exception:
+              pass
         batch_op.create_index(batch_op.f('ix_users_email'), ['email'], unique=True)
         batch_op.create_index(batch_op.f('ix_users_username'), ['username'], unique=True)
 
@@ -100,8 +110,14 @@ def downgrade():
     with op.batch_alter_table('users', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_users_username'))
         batch_op.drop_index(batch_op.f('ix_users_email'))
-        batch_op.create_index(batch_op.f('idx_16421_ix_users_username'), ['username'], unique=True)
-        batch_op.create_index(batch_op.f('idx_16421_ix_users_email'), ['email'], unique=True)
+        try:
+              batch_op.create_index(batch_op.f('idx_16421_ix_users_username'), ['username'], unique=True)
+        except Exception:
+              pass
+        try:
+              batch_op.create_index(batch_op.f('idx_16421_ix_users_email'), ['email'], unique=True)
+        except Exception:
+              pass
         batch_op.alter_column('last_name',
                existing_type=sa.String(length=100),
                type_=sa.TEXT(),
@@ -132,7 +148,10 @@ def downgrade():
 
     with op.batch_alter_table('recipes', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_recipes_title'))
-        batch_op.create_index(batch_op.f('idx_16431_ix_recipes_title'), ['title'], unique=False)
+        try:
+              batch_op.create_index(batch_op.f('idx_16431_ix_recipes_title'), ['title'], unique=False)
+        except Exception:
+              pass
         batch_op.alter_column('original_id',
                existing_type=sa.String(),
                type_=sa.TEXT(),
