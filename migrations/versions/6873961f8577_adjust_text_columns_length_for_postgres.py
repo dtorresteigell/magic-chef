@@ -56,7 +56,7 @@ def upgrade():
                existing_type=sa.TEXT(),
                type_=sa.String(),
                existing_nullable=True)
-        batch_op.create_index(batch_op.f('ix_recipes_title'), ['title'], unique=False)
+        #batch_op.create_index(batch_op.f('ix_recipes_title'), ['title'], unique=False)
 
     with op.batch_alter_table('users', schema=None) as batch_op:
         batch_op.alter_column('id',
@@ -86,8 +86,8 @@ def upgrade():
                existing_type=sa.TEXT(),
                type_=sa.String(length=100),
                existing_nullable=True)
-        batch_op.create_index(batch_op.f('ix_users_email'), ['email'], unique=True)
-        batch_op.create_index(batch_op.f('ix_users_username'), ['username'], unique=True)
+        #batch_op.create_index(batch_op.f('ix_users_email'), ['email'], unique=True)
+        #batch_op.create_index(batch_op.f('ix_users_username'), ['username'], unique=True)
 
     # ### end Alembic commands ###
 
