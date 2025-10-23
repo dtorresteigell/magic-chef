@@ -11,14 +11,14 @@ class User(db.Model, UserMixin):
     __tablename__ = "users"
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    username = db.Column(db.String(64), unique=True, nullable=False, index=True)
-    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
-    password_hash = db.Column(db.String(128), nullable=False)
+    username = db.Column(db.String(100), unique=True, nullable=False, index=True)
+    email = db.Column(db.String(255), unique=True, nullable=False, index=True)
+    password_hash = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    first_name = db.Column(db.String(50))
-    last_name = db.Column(db.String(50))
-    profile_pic = db.Column(db.String(255))  # e.g., path to uploaded image
+    first_name = db.Column(db.String(100))
+    last_name = db.Column(db.String(100))
+    profile_pic = db.Column(db.Text)  # e.g., path to uploaded image
 
     recipes = db.relationship("Recipe", back_populates="user", cascade="all, delete-orphan")
 
@@ -62,7 +62,7 @@ class Recipe(db.Model):
     tags = db.Column(db.Text, nullable=True)  # JSON string: ["tag1", "tag2"]
     
     # Image
-    image_filename = db.Column(db.String(255), nullable=True)
+    image_filename = db.Column(db.Text, nullable=True)
     
     # Metadata
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
