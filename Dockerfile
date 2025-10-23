@@ -16,4 +16,4 @@ ENV PORT=5000
 EXPOSE 5000
 
 # Gunicorn for production
-CMD ["sh", "-c", "flask db upgrade && gunicorn --bind 0.0.0.0:5000 app:create_app"]
+CMD ["sh", "-c", "flask db upgrade && gunicorn --bind 0.0.0.0:$PORT wsgi:app"]
