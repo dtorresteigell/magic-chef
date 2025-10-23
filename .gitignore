@@ -7,9 +7,11 @@ data/
 !/app/static/images/.gitkeep
 !/app/static/images/thumbnails/.gitkeep
 
-# Backup files
+# Backup and dev files
 backup_*/
 backup_*.*
+*.dev
+docker-compose.yml
 
 # PDFs
 *.pdf
