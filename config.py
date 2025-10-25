@@ -10,6 +10,10 @@ class Config:
     # Fix: Use forward slashes and ensure absolute path
     db_path = os.path.join(basedir, 'data', 'recipes.db')
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + db_path.replace('\\', '/')
+
+    # Babel configuration
+    BABEL_DEFAULT_LOCALE = 'en'
+    BABEL_TRANSLATION_DIRECTORIES = '../translations'
         
 
 class BaseConfig:

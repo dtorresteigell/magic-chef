@@ -105,7 +105,7 @@
                     <th scope="col"
                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                         onclick="sortTable('title')">
-                        Title
+                        {{ _('Title') }}
                         {% if sort_by == 'title' %}
                         <span class="ml-1">{{ '↑' if order == 'asc' else '↓' }}</span>
                         {% endif %}
@@ -113,34 +113,34 @@
                     <th scope="col"
                         class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                         onclick="sortTable('servings')">
-                        Servings
+                        {{ _('Servings') }}
                         {% if sort_by == 'servings' %}
                         <span class="ml-1">{{ '↑' if order == 'asc' else '↓' }}</span>
                         {% endif %}
                     </th>
                     <th scope="col"
                         class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Ingredients
+                        {{ _('Ingredients') }}
                     </th>
                     <th scope="col"
                         class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Steps
+                        {{ _('Steps') }}
                     </th>
                     <th scope="col"
                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Tags
+                        {{ _('Tags') }}
                     </th>
                     <th scope="col"
                         class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                         onclick="sortTable('created_at')">
-                        Created
+                        {{ _('Created') }}
                         {% if sort_by == 'created_at' %}
                         <span class="ml-1">{{ '↑' if order == 'asc' else '↓' }}</span>
                         {% endif %}
                     </th>
                     <th scope="col"
                         class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
+                        {{ _('Actions') }}
                     </th>
                 </tr>
             </thead>

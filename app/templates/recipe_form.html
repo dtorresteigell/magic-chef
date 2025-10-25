@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{% if recipe %}Edit{% else %}New{% endif %} Recipe - Recipe App{% endblock %}
+{% block title %}{% if recipe %}{{ _('Edit') }}{% else %}{{ _('New') }}{% endif %} {{ _('Recipe') }} - {{ _('Recipe App') }}{% endblock %}
 
 {% block content %}
 
@@ -17,14 +17,13 @@
             </div>
             <div class="ml-3">
                 <p class="text-sm text-blue-700">
-                    <span class="font-medium">Translation Preview</span> - Review the translated content below and make
-                    any adjustments before saving.
+                    <span class="font-medium">{{ _('Translation Preview') }}</span> - {{ _('Review the translated content below and make any adjustments before saving.') }}
                 </p>
             </div>
         </div>
         <button type="button" onclick="toggleOriginal()"
             class="ml-4 text-sm text-blue-700 underline hover:no-underline whitespace-nowrap">
-            Show Original
+            {{ _('Show Original') }}
         </button>
     </div>
 </div>
@@ -32,7 +31,7 @@
 <!-- Original Recipe Data (Hidden by default) -->
 <div id="originalRecipe" class="hidden bg-gray-50 border border-gray-300 rounded-lg p-6 mb-6 shadow-sm">
     <div class="flex justify-between items-start mb-4">
-        <h3 class="text-lg font-bold text-gray-900">📖 Original Content</h3>
+        <h3 class="text-lg font-bold text-gray-900">📖 {{ _('Original Content') }}</h3>
         <button type="button" onclick="toggleOriginal()" class="text-gray-500 hover:text-gray-700">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -43,20 +42,20 @@
     <div class="space-y-4 text-sm">
         <!-- Title -->
         <div class="bg-white p-3 rounded border border-gray-200">
-            <p class="text-xs text-gray-500 font-semibold mb-1">TITLE:</p>
+            <p class="text-xs text-gray-500 font-semibold mb-1">{{ _('TITLE:') }}</p>
             <p class="text-gray-800">{{ session.original_recipe.title }}</p>
         </div>
 
         <!-- Description -->
         <div class="bg-white p-3 rounded border border-gray-200">
-            <p class="text-xs text-gray-500 font-semibold mb-1">DESCRIPTION:</p>
+            <p class="text-xs text-gray-500 font-semibold mb-1">{{ _('DESCRIPTION:') }}</p>
             <p class="text-gray-800">{{ session.original_recipe.description }}</p>
         </div>
 
         <!-- Ingredients -->
         {% if session.original_recipe.ingredients_dict %}
         <div class="bg-white p-3 rounded border border-gray-200">
-            <p class="text-xs text-gray-500 font-semibold mb-2">INGREDIENTS:</p>
+            <p class="text-xs text-gray-500 font-semibold mb-2">{{ _('INGREDIENTS:') }}</p>
             <ul class="space-y-1 text-gray-800">
                 {% for ingredient, amount in session.original_recipe.ingredients_dict.items() %}
                 <li class="flex">
@@ -71,7 +70,7 @@
         <!-- Instructions -->
         {% if session.original_recipe.instructions_list %}
         <div class="bg-white p-3 rounded border border-gray-200">
-            <p class="text-xs text-gray-500 font-semibold mb-2">INSTRUCTIONS:</p>
+            <p class="text-xs text-gray-500 font-semibold mb-2">{{ _('INSTRUCTIONS:') }}</p>
             <ol class="list-decimal list-inside space-y-1 text-gray-800">
                 {% for instruction in session.original_recipe.instructions_list %}
                 <li>{{ instruction }}</li>
@@ -83,7 +82,7 @@
         <!-- Notes -->
         {% if session.original_recipe.notes_list %}
         <div class="bg-white p-3 rounded border border-gray-200">
-            <p class="text-xs text-gray-500 font-semibold mb-2">NOTES:</p>
+            <p class="text-xs text-gray-500 font-semibold mb-2">{{ _('NOTES:') }}</p>
             <ul class="list-disc list-inside space-y-1 text-gray-800">
                 {% for note in session.original_recipe.notes_list %}
                 <li>{{ note }}</li>
@@ -105,34 +104,34 @@
 
 <div class="max-w-3xl mx-auto">
     <h1 class="text-4xl font-bold text-gray-900 mb-8">
-        {% if recipe %}Edit Recipe{% else %}Create New Recipe{% endif %}
+        {% if recipe %}{{ _('Edit Recipe') }}{% else %}{{ _('Create New Recipe') }}{% endif %}
     </h1>
 
     <form method="POST" enctype="multipart/form-data" class="space-y-6">
         <!-- Title -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
-                Recipe Title *
+                {{ _('Recipe Title') }} *
             </label>
             <input type="text" id="title" name="title" value="{{ recipe.title if recipe else '' }}" required
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                placeholder="e.g., Pasta with Pumpkin Sauce">
+                placeholder="{{ _('e.g., Pasta with Pumpkin Sauce') }}">
         </div>
 
         <!-- Description -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-                Description *
+                {{ _('Description') }} *
             </label>
             <textarea id="description" name="description" rows="3" required
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                placeholder="A brief description of your recipe...">{{ recipe.description if recipe else '' }}</textarea>
+                placeholder="{{ _('A brief description of your recipe...') }}">{{ recipe.description if recipe else '' }}</textarea>
         </div>
 
         <!-- Servings -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <label for="servings" class="block text-sm font-medium text-gray-700 mb-2">
-                Servings *
+                {{ _('Servings') }} *
             </label>
             <input type="number" id="servings" name="servings" value="{{ recipe.servings if recipe else 4 }}" min="1"
                 required
@@ -142,23 +141,23 @@
         <!-- Ingredients -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <label for="ingredients" class="block text-sm font-medium text-gray-700 mb-2">
-                Ingredients *
+                {{ _('Ingredients') }} *
             </label>
             <p class="text-sm text-gray-500 mb-2">
-                Format: <code class="bg-gray-100 px-1">ingredient | description</code> (one per line)
+                {{ _('Format:') }} <code class="bg-gray-100 px-1">ingredient | description</code> {{ _('(one per line)') }}
             </p>
             <textarea id="ingredients" name="ingredients" rows="8" required
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-mono text-sm"
-                placeholder="pasta | 500 g tagliatelle&#10;pumpkin | 600 g Hokkaido, cubed&#10;olive oil | 4 tbsp">{% if recipe %}{% for ingredient, description in recipe.ingredients_dict.items() %}{{ ingredient }} | {{ description }}&#10;{% endfor %}{% endif %}</textarea>
+                placeholder="{{ _('pasta | 500 g tagliatelle') }}&#10;{{ _('pumpkin | 600 g Hokkaido, cubed') }}&#10;{{ _('olive oil | 4 tbsp') }}">{% if recipe %}{% for ingredient, description in recipe.ingredients_dict.items() %}{{ ingredient }} | {{ description }}&#10;{% endfor %}{% endif %}</textarea>
         </div>
 
         <!-- Instructions -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <label for="instructions" class="block text-sm font-medium text-gray-700 mb-2">
-                Instructions *
+                {{ _('Instructions') }} *
             </label>
             <p class="text-sm text-gray-500 mb-2">
-                One step per line
+                {{ _('One step per line') }}
             </p>
             <textarea id="instructions" name="instructions" rows="8" required
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
@@ -168,33 +167,33 @@
         <!-- Notes -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
-                Notes (Optional)
+                {{ _('Notes') }} ({{ _('Optional') }})
             </label>
             <p class="text-sm text-gray-500 mb-2">
-                One note per line
+                {{ _('One note per line') }}
             </p>
             <textarea id="notes" name="notes" rows="3"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                placeholder="You can use Hokkaido pumpkin...&#10;Store leftovers in the fridge...">{% if recipe %}{% for note in recipe.notes_list %}{{ note }}&#10;{% endfor %}{% endif %}</textarea>
+                placeholder="{{ _('You can use Hokkaido pumpkin...') }}&#10;{{ _('Store leftovers in the fridge...') }}">{% if recipe %}{% for note in recipe.notes_list %}{{ note }}&#10;{% endfor %}{% endif %}</textarea>
         </div>
 
         <!-- Tags -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <label for="tags" class="block text-sm font-medium text-gray-700 mb-2">
-                Tags (Optional)
+                {{ _('Tags') }} ({{ _('Optional') }})
             </label>
             <p class="text-sm text-gray-500 mb-2">
-                Comma-separated: <code class="bg-gray-100 px-1">vegetarian, pasta, Italian</code>
+                {{ _('Comma-separated:') }} <code class="bg-gray-100 px-1">{{ _('vegetarian, pasta, Italian') }}</code>
             </p>
             <input type="text" id="tags" name="tags" value="{% if recipe %}{{ recipe.tags_list|join(', ') }}{% endif %}"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                placeholder="vegetarian, pasta, main course">
+                placeholder="{{ _('vegetarian, pasta, main course') }}">
         </div>
 
         <!-- Image Upload -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <label class="block text-sm font-medium text-gray-700 mb-2">
-                Recipe Image
+                {{ _('Recipe Image') }}
             </label>
 
             {% if recipe and recipe.image_filename %}
@@ -207,7 +206,7 @@
                         🗑️
                     </button>
                 </div>
-                <p class="text-sm text-gray-500 mt-2">Upload a new image to replace the current one</p>
+                <p class="text-sm text-gray-500 mt-2">{{ _('Upload a new image to replace the current one') }}</p>
             </div>
             {% endif %}
 
@@ -224,20 +223,20 @@
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                         <div class="text-sm text-gray-600">
-                            <span class="font-medium text-orange-600 hover:text-orange-700">Click to upload</span>
-                            or drag and drop
+                            <span class="font-medium text-orange-600 hover:text-orange-700">{{ _('Click to upload') }}</span>
+                            {{ _('or drag and drop') }}
                         </div>
-                        <p class="text-xs text-gray-500">PNG, JPG, GIF, WebP up to 16MB</p>
+                        <p class="text-xs text-gray-500">{{ _('PNG, JPG, GIF, WebP up to 16MB') }}</p>
                     </div>
                 </label>
             </div>
 
             <!-- Image Preview -->
             <div id="image-preview" class="mt-4 hidden">
-                <p class="text-sm font-medium text-gray-700 mb-2">Preview:</p>
+                <p class="text-sm font-medium text-gray-700 mb-2">{{ _('Preview') }}:</p>
                 <img id="preview-img" class="h-48 rounded-lg" alt="Preview">
                 <button type="button" onclick="clearPreview()" class="mt-2 text-sm text-red-600 hover:text-red-700">
-                    Remove preview
+                    {{ _('Remove preview') }}
                 </button>
             </div>
         </div>
@@ -269,7 +268,7 @@
             }
 
             function deleteImage(recipeId) {
-                if (!confirm('Are you sure you want to delete this image?')) {
+                if (!confirm("{{ _('Are you sure you want to delete this image?') }}")) {
                     return;
                 }
 
@@ -283,13 +282,13 @@
                     .then(data => {
                         if (data.success) {
                             document.getElementById('current-image').parentElement.parentElement.remove();
-                            alert('Image deleted successfully');
+                            alert("{{ _('Image deleted successfully') }}");
                         } else {
-                            alert('Error deleting image: ' + data.message);
+                            alert("{{ _('Error deleting image:') }}" + ' ' + data.message);
                         }
                     })
                     .catch(error => {
-                        alert('Error deleting image');
+                        alert("{{ _('Error deleting image') }}");
                         console.error('Error:', error);
                     });
             }
@@ -299,11 +298,11 @@
         <div class="flex space-x-4">
             <button type="submit"
                 class="flex-1 bg-orange-600 text-white py-3 px-6 rounded-lg hover:bg-orange-700 font-medium text-lg">
-                {% if recipe %}💾 Update Recipe{% else %}➕ Create Recipe{% endif %}
+                {% if recipe %}💾 {{ _('Update Recipe') }}{% else %}➕ {{ _('Create Recipe') }}{% endif %}
             </button>
             <a href="{{ url_for('main.index') }}"
                 class="bg-gray-200 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-300 font-medium text-lg">
-                Cancel
+                {{ _('Cancel') }}
             </a>
         </div>
     </form>

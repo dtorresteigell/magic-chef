@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, session
 from app import db
 from app.models import Recipe
+from flask_babel import gettext as _
 from app.utils.ai_recipe_generator import MistralRecipeGenerator, convert_ai_recipe_to_model_format
 
 bp = Blueprint('ai_recipes', __name__, url_prefix='/ai')
@@ -27,7 +28,7 @@ def generate_ideas():
         ingredients_list = [ing.strip() for ing in ingredients_text.split(',') if ing.strip()]
         
         if not ingredients_list:
-            return jsonify({'success': False, 'error': 'Please enter at least one ingredient'}), 400
+            return jsonify({'success': False, 'error': _('Please enter at least one ingredient')}), 400
         
         # Generate ideas
         generator = MistralRecipeGenerator()
@@ -68,10 +69,10 @@ def generate_recipe():
         use_only = request.json.get('use_only', False)
         
         if not title:
-            return jsonify({'success': False, 'error': 'Dish title is required'}), 400
+            return jsonify({'success': False, 'error': _('Dish title is required')}), 400
         
         if not ingredients_list:
-            return jsonify({'success': False, 'error': 'Ingredients list is required'}), 400
+            return jsonify({'success': False, 'error': _('Ingredients list is required')}), 400
         
         # Generate recipe
         generator = MistralRecipeGenerator()
@@ -96,10 +97,10 @@ def save_recipe():
         recipe_data = request.json.get('recipe')
         
         if not recipe_data:
-            return jsonify({'success': False, 'error': 'Recipe data is required'}), 400
+            return jsonify({'success': False, 'error': _('Recipe data is required')}), 400
         
         if "user_id" not in session:
-            flash("Please log in first.", "warning")
+            flash(_("Please log in first."), "warning")
             return redirect(url_for("auth.login"))
         
         user_id = session['user_id']
@@ -114,7 +115,7 @@ def save_recipe():
         return jsonify({
             'success': True,
             'recipe_id': recipe.id,
-            'message': 'Recipe saved successfully!'
+            'message': _('Recipe saved successfully!')
         })
     
     except Exception as e:

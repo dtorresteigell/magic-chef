@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Recipe App{% endblock %}</title>
+    <title>{% block title %}{{ _('Recipe App') }}{% endblock %}</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -79,8 +79,18 @@
                 <!-- Left section -->
                 <div class="flex items-center">
                     <a href="{{ url_for('main.index') }}" class="text-2xl font-bold text-orange-600">
-                        🍳 Recipe App
+                        🍳 {{ _('Recipe App') }}
                     </a>
+
+                    <!-- For anonymous users only -->
+                    {% if not current_user.is_authenticated %}
+                    <div class="language-switcher">
+                        <a href="{{ url_for('main.set_language', language='en') }}">English</a>
+                        <a href="{{ url_for('main.set_language', language='de') }}">Deutsch</a>
+                        <a href="{{ url_for('main.set_language', language='es') }}">Español</a>
+                        <a href="{{ url_for('main.set_language', language='fr') }}">Français</a>
+                    </div>
+                    {% endif %}
                 </div>
 
                 <!-- Right section -->
@@ -88,26 +98,26 @@
                     <!-- Regular links -->
                     <a href="{{ url_for('main.index') }}"
                         class="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium">
-                        Home
+                        {{ _('Home') }}
                     </a>
                     <a href="{{ url_for('table_view.index') }}"
                         class="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium">
-                        📊 Table View
+                        📊 {{ _('Table View') }}
                     </a>
                     <a href="{{ url_for('search.search') }}"
                         class="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium">
-                        🔎 Search
+                        🔎 {{ _('Search') }}
                     </a>
                     <a href="{{ url_for('pdf.select_recipes') }}"
                         class="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium">
-                        📄 Create Cookbook
+                        📄 {{ _('Create Cookbook') }}
                     </a>
 
                     <!-- ✨ AI Tools dropdown -->
                     <div class="relative group">
                         <button
                             class="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                            ✨ AI Tools
+                            ✨ {{ _('AI Tools') }}
                             <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
@@ -117,11 +127,11 @@
                             class="absolute hidden group-hover:block bg-white shadow-lg rounded-md py-1 w-48 right-0 z-50">
                             <a href="{{ url_for('ai_recipes.index') }}"
                                 class="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 text-sm">
-                                🤖 Generate Recipes
+                                🤖 {{ _('Generate Recipes') }}
                             </a>
                             <a href="{{ url_for('digitaliser.index') }}"
                                 class="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 text-sm">
-                                📸 Digitaliser
+                                📸 {{ _('Digitaliser') }}
                             </a>
                         </div>
                     </div>
@@ -141,16 +151,16 @@
                             class="absolute hidden group-hover:block bg-white shadow-lg rounded-md py-1 w-48 right-0 mt-1 z-50">
                             <a href="{{ url_for('main.recipe_new') }}"
                                 class="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 text-sm">
-                                ➕ New Recipe
+                                ➕ {{ _('New Recipe') }}
                             </a>
                             <a href="{{ url_for('main.settings') }}"
                                 class="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 text-sm">
-                                ⚙️ Settings
+                                ⚙️ {{ _('Settings') }}
                             </a>
                             <div class="border-t my-1"></div>
                             <a href="{{ url_for('auth.logout') }}"
                                 class="block px-4 py-2 text-red-600 hover:bg-orange-50 hover:text-red-700 text-sm">
-                                🚪 Logout
+                                🚪 {{ _('Logout') }}
                             </a>
                         </div>
                     </div>
@@ -158,7 +168,7 @@
                     <!-- If not logged in -->
                     <a href="{{ url_for('auth.login') }}"
                         class="bg-orange-600 text-white hover:bg-orange-700 px-4 py-2 rounded-md text-sm font-medium">
-                        Login
+                        {{ _('Login') }}
                     </a>
                     {% endif %}
                 </div>
@@ -192,6 +202,11 @@
 
 <script>
     document.querySelectorAll('.dropdown').forEach(function (dropdown) {
+        const toggle = dropdown.querySelector('.dropdown-toggle');
+        if (toggle && !toggle.hasAttribute('aria-label')) {
+            toggle.setAttribute('aria-label', "{{ _('Toggle dropdown menu') }}");
+        }
+
         dropdown.addEventListener('mouseenter', function () {
             const menu = dropdown.querySelector('.dropdown-menu');
             new bootstrap.Dropdown(dropdown.querySelector('.dropdown-toggle')).show();

@@ -3,6 +3,7 @@ import json
 import re
 from mistralai import Mistral
 from flask import current_app
+from flask_babel import gettext as _
 
 
 def parse_agent_json(text: str):
@@ -28,7 +29,7 @@ class MistralRecipeGenerator:
         self.agent_id = os.environ.get("AGENT_ID")
         
         if not self.api_key or not self.agent_id:
-            raise ValueError("COOK_AGENT_KEY and AGENT_ID must be set in environment")
+            raise ValueError(_("COOK_AGENT_KEY and AGENT_ID must be set in environment"))
         
         self.client = Mistral(api_key=self.api_key)
     
@@ -64,7 +65,7 @@ class MistralRecipeGenerator:
         
         except Exception as e:
             current_app.logger.error(f"Error generating dish ideas: {e}")
-            raise Exception(f"Failed to generate dish ideas: {str(e)}")
+            raise Exception(_("Failed to generate dish ideas: %(error)s") % {"error": str(e)})
     
     def generate_recipe(self, title, ingredients_list, use_only=False):
         """
@@ -114,13 +115,13 @@ class MistralRecipeGenerator:
             required_fields = ['title', 'description', 'ingredients', 'instructions']
             for field in required_fields:
                 if field not in data:
-                    raise ValueError(f"Missing required field: {field}")
+                    raise ValueError(_("Missing required field: %(field)s") % {"field": field})
             
             return data
         
         except Exception as e:
             current_app.logger.error(f"Error generating recipe: {e}")
-            raise Exception(f"Failed to generate recipe: {str(e)}")
+            raise Exception(_("Failed to generate recipe: %(error)s") % {"error": str(e)})
 
 
 def convert_ai_recipe_to_model_format(ai_recipe):
@@ -187,13 +188,13 @@ def convert_ai_recipe_to_model_format(ai_recipe):
         print(f"❌ Unexpected ingredients format: {type(ingredients_data)}")
     
     result = {
-        'title': ai_recipe.get('title', 'Untitled Recipe'),
+        'title': ai_recipe.get('title', _('Untitled Recipe')),
         'description': ai_recipe.get('description', ''),
         'servings': servings,
         'ingredients': ingredients_dict,
         'instructions': ai_recipe.get('instructions', []),
         'notes': ai_recipe.get('notes', []),
-        'tags': ['AI-generated']
+        'tags': [_('AI-generated')]
     }
     
     # ========== DEBUG PRINT ==========

@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, send_file, request, flash, redirect, url_for, current_app, session
+from flask_babel import gettext as _
 from app import db
 from app.models import Recipe
 from app.utils.auth_helpers import login_required
@@ -48,14 +49,14 @@ def cookbook():
         cookbook_title = request.form.get('title', 'My Recipe Collection')
         
         if not recipe_ids:
-            flash('Please select at least one recipe', 'error')
+            flash(_('Please select at least one recipe'), 'error')
             return redirect(url_for('pdf.select_recipes'))
         
         # Get recipes
         recipes = Recipe.query.filter(Recipe.id.in_(recipe_ids)).all()
         
         if not recipes:
-            flash('No recipes found', 'error')
+            flash(_('No recipes found'), 'error')
             return redirect(url_for('pdf.select_recipes'))
         
         # Create filename
@@ -72,7 +73,7 @@ def cookbook():
                 current_app.config['UPLOAD_FOLDER']
             )
             
-            flash(f'Cookbook PDF generated successfully! ({len(recipes)} recipes)', 'success')
+            flash(_('Cookbook PDF generated successfully! (%(count)d recipes)') % {'count': len(recipes)}, 'success')
             
             # Send file
             return send_file(

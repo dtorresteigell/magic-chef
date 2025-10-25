@@ -3,6 +3,7 @@ from werkzeug.utils import secure_filename
 import os
 import tempfile
 from app.utils.auth_helpers import login_required
+from flask_babel import gettext as _
 from app.utils.ocr_handler import perform_ocr, parse_ocr_text_to_recipe
 from app.utils.ai_recipe_generator import convert_ai_recipe_to_model_format
 
@@ -20,7 +21,7 @@ def allowed_file(filename):
 def index():
     """Recipe Digitaliser page"""
     if "user_id" not in session:
-        flash("Please log in to see your recipes.", "info")
+        flash(_("Please log in to see your recipes."), "info")
         return redirect(url_for("auth.login"))
     return render_template('digitaliser.html')
 
@@ -83,14 +84,14 @@ def save_recipe():
         from app.models import Recipe
 
         if "user_id" not in session:
-            flash("Please log in to see your recipes.", "info")
+            flash(_("Please log in to see your recipes."), "info")
             return redirect(url_for("auth.login"))
         user_id = session.get('user_id', None)
         
         recipe_data = request.json.get('recipe')
         
         if not recipe_data:
-            return jsonify({'success': False, 'error': 'Recipe data required'}), 400
+            return jsonify({'success': False, 'error': _('Recipe data required')}), 400
         
         # Create recipe
         recipe = Recipe.from_dict(recipe_data, user_id=user_id)

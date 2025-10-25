@@ -2,14 +2,14 @@
 <div class="mb-6">
     {% if search_type == 'general' %}
     <h2 class="text-2xl font-semibold text-gray-900">
-        Results for "{{ query }}"
+        {{ _('Results for "%(query)s"') % {'query': query} }}
     </h2>
     {% elif search_type == 'tag' %}
     <h2 class="text-2xl font-semibold text-gray-900">
-        Recipes tagged with "{{ tag }}"
+        {{ _('Recipes tagged with "%(tag)s"') % {'tag': tag} }}
     </h2>
     {% endif %}
-    <p class="text-gray-600 mt-1">{{ results|length }} recipe(s) found</p>
+    <p class="text-gray-600 mt-1">{{ _('%(count)d recipe(s) found') % {'count': results|length} }}</p>
 </div>
 
 {% if results %}

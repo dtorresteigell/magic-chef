@@ -1,6 +1,7 @@
 # app/routes/auth.py
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, make_response, current_app
 from flask_login import login_user, logout_user, login_required
+from flask_babel import gettext as _
 from app import db, mail
 from app.models import User
 from app.utils.auth_helpers import generate_reset_token, verify_reset_token
@@ -21,23 +22,23 @@ def register():
         password2 = request.form.get('password2')
 
         if not username or not email or not password:
-            flash("Please fill all fields", "error")
+            flash(_("Please fill all fields"), "error")
             return render_template("auth/register.html")  # no _form
 
         if password != password2:
-            flash("Passwords do not match", "error")
+            flash(_("Passwords do not match"), "error")
             return render_template("auth/register.html")
 
         if User.query.filter((User.username==username)|(User.email==email)).first():
-            flash("Username or email already exists", "error")
+            flash(_("Username or email already exists"), "error")
             return render_template("auth/register.html")
 
-        user = User(username=username, email=email)
+        user = User(username=username, email=email, language=request.cookies.get('language', 'en'))
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
 
-        flash("Account created successfully. Please log in.", "success")
+        flash(_("Account created successfully. Please log in."), "success")
 
         resp = make_response('', 204)
         resp.headers['HX-Redirect'] = url_for('auth.login')
@@ -62,13 +63,19 @@ def login():
             session['user_id'] = user.id
             session['username'] = user.username
 
+            # Sync cookie language to DB if different
+            cookie_lang = request.cookies.get('language')
+            if cookie_lang and cookie_lang != user.language:
+                user.language = cookie_lang
+                db.session.commit()
+
             # HTMX redirect
             resp = make_response('', 204)  # no content
             resp.headers['HX-Redirect'] = url_for('main.index')
             return resp
         else:
             # Invalid login → return login form again (HTMX will swap content)
-            flash("Invalid username or password", "error")
+            flash(_("Invalid username or password"), "error")
             return render_template('auth/login.html')
 
     return render_template('auth/login.html')
@@ -81,7 +88,7 @@ def login():
 def logout():
     logout_user()
     session.clear()
-    flash("You have been logged out", "success")
+    flash(_("You have been logged out"), "success")
     return redirect(url_for('main.index'))
 
 
@@ -111,9 +118,9 @@ Click the link below to reset your password:
 If you did not request this, ignore this email.
 """
             mail.send(msg)
-            flash("Password reset link sent! Check your email.", "success")
+            flash(_("Password reset link sent! Check your email."), "success")
         else:
-            flash("Email not found.", "error")
+            flash(_("Email not found."), "error")
 
         return render_template('auth/reset_password_request.html')
 
@@ -127,7 +134,7 @@ If you did not request this, ignore this email.
 def reset_password(token):
     user_id = verify_reset_token(token)
     if not user_id:
-        flash("Invalid or expired token", "error")
+        flash(_("Invalid or expired token"), "error")
         return redirect(url_for('auth.reset_password_request'))
 
     user = User.query.get(user_id)
@@ -136,12 +143,12 @@ def reset_password(token):
         password2 = request.form.get('password2')
 
         if not password or password != password2:
-            flash("Passwords must match", "error")
+            flash(_("Passwords must match"), "error")
             return render_template('auth/reset_password.html', token=token)
 
         user.set_password(password)
         db.session.commit()
-        flash("Your password has been updated!", "success")
+        flash(_("Your password has been updated!"), "success")
         return redirect(url_for('auth.login'))
 
     return render_template('auth/reset_password.html', token=token)
