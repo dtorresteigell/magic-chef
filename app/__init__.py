@@ -86,7 +86,7 @@ def create_app():
     os.makedirs(os.path.join(app.instance_path, '..', 'data'), exist_ok=True)
     
     # Register blueprints
-    from app.routes import main, search, pdf, ai_recipes, table_view, digitaliser, auth
+    from app.routes import main, search, pdf, ai_recipes, table_view, digitaliser, auth, chat
     app.register_blueprint(main.bp)
     app.register_blueprint(search.bp)
     app.register_blueprint(pdf.bp)
@@ -94,7 +94,8 @@ def create_app():
     app.register_blueprint(table_view.bp)
     app.register_blueprint(digitaliser.bp)
     app.register_blueprint(auth.bp)
-    
+    app.register_blueprint(chat.bp)
+
     # Create database tables
     with app.app_context():
         db.create_all()

@@ -1,20 +1,36 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, session, jsonify, make_response
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    flash,
+    current_app,
+    session,
+    jsonify,
+    make_response,
+)
 from flask_login import current_user
 from flask_babel import gettext as _
 from app import db
 from app.models import Recipe
-from app.utils.image_handler import process_recipe_image, delete_recipe_images, allowed_file
+from app.utils.image_handler import (
+    process_recipe_image,
+    delete_recipe_images,
+    allowed_file,
+)
 from app.utils.auth_helpers import login_required
 from app.utils.translate_helpers import translate_recipe_sync
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash, generate_password_hash
 import os
 import json
+from urllib.parse import unquote
 
-bp = Blueprint('main', __name__)
+bp = Blueprint("main", __name__)
 
 
-@bp.route('/')
+@bp.route("/")
 @login_required
 def index():
     """Home page with user-specific recipe list"""
@@ -30,6 +46,7 @@ def index():
 
     return render_template("index.html", recipes=recipes)
 
+
 @bp.route("/settings", methods=["GET", "POST"])
 @login_required
 def settings():
@@ -37,12 +54,12 @@ def settings():
         current_user.first_name = request.form.get("first_name")
         current_user.last_name = request.form.get("last_name")
         current_user.email = request.form.get("email")
-        
+
         # Add language preference
         language = request.form.get("language")
-        if language in ['en', 'de', 'es', 'fr']:
+        if language in ["en", "de", "es", "fr"]:
             current_user.language = language
-        
+
         # Handle optional profile picture
         picture = request.files.get("profile_picture")
         if picture and picture.filename:
@@ -50,12 +67,13 @@ def settings():
             path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
             picture.save(path)
             current_user.profile_pic = filename
-        
+
         db.session.commit()
         flash(_("Profile updated successfully!"), "success")
         return redirect(url_for("main.settings"))
-    
+
     return render_template("user_settings.html")
+
 
 @bp.route("/settings/password", methods=["POST"])
 @login_required
@@ -87,36 +105,63 @@ def change_password():
     return redirect(url_for("main.settings"))
 
 
-@bp.route('/recipes/<recipe_id>')
+@bp.route("/recipes/<recipe_id>")
 def recipe_detail(recipe_id):
     """Recipe detail page"""
     recipe = Recipe.query.get_or_404(recipe_id)
 
     # Check if current user already copied this recipe
-    recipe_already_copied = Recipe.query.filter_by(
-        user_id=session['user_id'],
-        original_id=recipe.original_id
-    ).first() is not None
+    recipe_already_copied = (
+        Recipe.query.filter_by(
+            user_id=session["user_id"], original_id=recipe.original_id
+        ).first()
+        is not None
+    )
 
     if "user_id" not in session:
         flash(_("Please log in first."), "warning")
         return redirect(url_for("auth.login"))
     else:
         user_id = session["user_id"]
-    
+
     # If recipe belongs to someone else and is not public
-    if (recipe.user_id and recipe.user_id != session.get('user_id') and not recipe.is_public): # Later if recipe.user_id != user_id and not recipe.is_public:
+    if (
+        recipe.user_id
+        and recipe.user_id != session.get("user_id")
+        and not recipe.is_public
+    ):  # Later if recipe.user_id != user_id and not recipe.is_public:
         flash(_("You are not allowed to view this recipe."), "warning")
         return redirect(url_for("main.index"))
 
-    return render_template('recipe_detail.html', recipe=recipe, recipe_already_copied=recipe_already_copied)
+    return render_template(
+        "recipe_detail.html", recipe=recipe, recipe_already_copied=recipe_already_copied
+    )
 
 
-@bp.route('/recipes/new', methods=['GET', 'POST'])
+@bp.route("/recipes/new", methods=["GET", "POST"])
 @login_required
 def recipe_new():
     """Create new recipe"""
-    if request.method == 'POST':
+    from flask_babel import gettext as _
+
+    # Check if there's prefill data from chatbot
+    prefill_data = None
+    raw = request.args.get("prefill")
+    if raw:
+        decoded = raw
+        # try up to 3 unquotes to handle single or double encoding
+        for _ in range(3):
+            try:
+                prefill_data = json.loads(decoded)
+                break
+            except json.JSONDecodeError:
+                decoded = unquote(decoded)
+        else:
+            prefill_data = None
+
+    current_app.logger.debug(f"Prefill data: {prefill_data}")
+
+    if request.method == "POST":
         if "user_id" not in session:
             flash(_("Please log in first."), "warning")
             return redirect(url_for("auth.login"))
@@ -124,73 +169,90 @@ def recipe_new():
             user_id = session["user_id"]
             try:
                 # Get form data
-                title = request.form.get('title')
-                description = request.form.get('description')
-                servings = int(request.form.get('servings', 4))
-                
+                title = request.form.get("title")
+                description = request.form.get("description")
+                servings = int(request.form.get("servings", 4))
+
                 # Parse ingredients (format: "ingredient|description" one per line)
-                ingredients_text = request.form.get('ingredients', '')
+                ingredients_text = request.form.get("ingredients", "")
                 ingredients_dict = {}
-                for line in ingredients_text.strip().split('\n'):
-                    if '|' in line:
-                        key, value = line.split('|', 1)
+                for line in ingredients_text.strip().split("\n"):
+                    if "|" in line:
+                        key, value = line.split("|", 1)
                         ingredients_dict[key.strip()] = value.strip()
-                
+
                 # Parse instructions (one per line)
-                instructions_text = request.form.get('instructions', '')
-                instructions_list = [line.strip() for line in instructions_text.strip().split('\n') if line.strip()]
-                
+                instructions_text = request.form.get("instructions", "")
+                instructions_list = [
+                    line.strip()
+                    for line in instructions_text.strip().split("\n")
+                    if line.strip()
+                ]
+
                 # Parse notes (one per line)
-                notes_text = request.form.get('notes', '')
-                notes_list = [line.strip() for line in notes_text.strip().split('\n') if line.strip()]
-                
+                notes_text = request.form.get("notes", "")
+                notes_list = [
+                    line.strip()
+                    for line in notes_text.strip().split("\n")
+                    if line.strip()
+                ]
+
                 # Parse tags (comma-separated)
-                tags_text = request.form.get('tags', '')
-                tags_list = [tag.strip() for tag in tags_text.split(',') if tag.strip()]
-                
+                tags_text = request.form.get("tags", "")
+                tags_list = [tag.strip() for tag in tags_text.split(",") if tag.strip()]
+
                 # Create recipe
                 recipe = Recipe(
                     user_id=user_id,
                     title=title,
                     description=description,
-                    servings=servings
+                    servings=servings,
                 )
                 recipe.ingredients_dict = ingredients_dict
                 recipe.instructions_list = instructions_list
                 recipe.notes_list = notes_list
                 recipe.tags_list = tags_list
-                
+
                 # Handle image upload with optimization
-                if 'image' in request.files:
-                    file = request.files['image']
+                if "image" in request.files:
+                    file = request.files["image"]
                     if file and file.filename and allowed_file(file.filename):
                         filename, thumb_filename = process_recipe_image(
-                            file, 
-                            current_app.config['UPLOAD_FOLDER']
+                            file, current_app.config["UPLOAD_FOLDER"]
                         )
                         if filename:
                             recipe.image_filename = filename
-                            flash(_('Image uploaded and optimized successfully!'), 'success')
+                            flash(
+                                _("Image uploaded and optimized successfully!"),
+                                "success",
+                            )
                         else:
-                            flash(_('Error processing image. Recipe saved without image.'), 'warning')
-                
+                            flash(
+                                _(
+                                    "Error processing image. Recipe saved without image."
+                                ),
+                                "warning",
+                            )
+
                 db.session.add(recipe)
                 db.session.flush()
                 recipe.original_id = recipe.id
                 db.session.commit()
-                
-                flash(_('Recipe created successfully!'), 'success')
-                return redirect(url_for('main.recipe_detail', recipe_id=recipe.id))
-            
+
+                flash(_("Recipe created successfully!"), "success")
+                return redirect(url_for("main.recipe_detail", recipe_id=recipe.id))
+
             except Exception as e:
                 db.session.rollback()
-                flash(_('Error creating recipe: %(error)s') % {'error': str(e)}, 'error')
-                return redirect(url_for('main.recipe_new'))
-    
-    return render_template('recipe_form.html', recipe=None)
+                flash(
+                    _("Error creating recipe: %(error)s") % {"error": str(e)}, "error"
+                )
+                return redirect(url_for("main.recipe_new"))
+
+    return render_template("recipe_form.html", recipe=None, prefill=prefill_data)
 
 
-@bp.route('/recipes/<recipe_id>/edit', methods=['GET', 'POST'])
+@bp.route("/recipes/<recipe_id>/edit", methods=["GET", "POST"])
 @login_required
 def recipe_edit(recipe_id):
     """Edit existing recipe"""
@@ -199,199 +261,230 @@ def recipe_edit(recipe_id):
     if "user_id" not in session or recipe.user_id != session["user_id"]:
         flash(_("You don't have permission to modify this recipe."), "error")
         return redirect(url_for("main.index"))
-    
-    if request.method == 'POST':
+
+    if request.method == "POST":
         try:
             # Update basic fields
-            recipe.title = request.form.get('title')
-            recipe.description = request.form.get('description')
-            recipe.servings = int(request.form.get('servings', 4))
-            
+            recipe.title = request.form.get("title")
+            recipe.description = request.form.get("description")
+            recipe.servings = int(request.form.get("servings", 4))
+
             # Parse ingredients
-            ingredients_text = request.form.get('ingredients', '')
+            ingredients_text = request.form.get("ingredients", "")
             ingredients_dict = {}
-            for line in ingredients_text.strip().split('\n'):
-                if '|' in line:
-                    key, value = line.split('|', 1)
+            for line in ingredients_text.strip().split("\n"):
+                if "|" in line:
+                    key, value = line.split("|", 1)
                     ingredients_dict[key.strip()] = value.strip()
             recipe.ingredients_dict = ingredients_dict
-            
+
             # Parse instructions
-            instructions_text = request.form.get('instructions', '')
-            recipe.instructions_list = [line.strip() for line in instructions_text.strip().split('\n') if line.strip()]
-            
+            instructions_text = request.form.get("instructions", "")
+            recipe.instructions_list = [
+                line.strip()
+                for line in instructions_text.strip().split("\n")
+                if line.strip()
+            ]
+
             # Parse notes
-            notes_text = request.form.get('notes', '')
-            recipe.notes_list = [line.strip() for line in notes_text.strip().split('\n') if line.strip()]
-            
+            notes_text = request.form.get("notes", "")
+            recipe.notes_list = [
+                line.strip() for line in notes_text.strip().split("\n") if line.strip()
+            ]
+
             # Parse tags
-            tags_text = request.form.get('tags', '')
-            recipe.tags_list = [tag.strip() for tag in tags_text.split(',') if tag.strip()]
-            
+            tags_text = request.form.get("tags", "")
+            recipe.tags_list = [
+                tag.strip() for tag in tags_text.split(",") if tag.strip()
+            ]
+
             # Handle image upload with optimization
-            if 'image' in request.files:
-                file = request.files['image']
+            if "image" in request.files:
+                file = request.files["image"]
                 if file and file.filename and allowed_file(file.filename):
                     # Delete old images
                     if recipe.image_filename:
-                        delete_recipe_images(recipe.image_filename, current_app.config['UPLOAD_FOLDER'])
-                    
+                        delete_recipe_images(
+                            recipe.image_filename, current_app.config["UPLOAD_FOLDER"]
+                        )
+
                     # Process new image
                     filename, thumb_filename = process_recipe_image(
-                        file,
-                        current_app.config['UPLOAD_FOLDER']
+                        file, current_app.config["UPLOAD_FOLDER"]
                     )
                     if filename:
                         recipe.image_filename = filename
-                        flash('Image updated and optimized successfully!', 'success')
+                        flash("Image updated and optimized successfully!", "success")
                     else:
-                        flash('Error processing image. Recipe updated without new image.', 'warning')
-            
+                        flash(
+                            "Error processing image. Recipe updated without new image.",
+                            "warning",
+                        )
+
             db.session.commit()
-            flash('Recipe updated successfully!', 'success')
-            return redirect(url_for('main.recipe_detail', recipe_id=recipe.id))
-        
+            flash("Recipe updated successfully!", "success")
+            return redirect(url_for("main.recipe_detail", recipe_id=recipe.id))
+
         except Exception as e:
             db.session.rollback()
-            flash(f'Error updating recipe: {str(e)}', 'error')
-    
-    return render_template('recipe_form.html', recipe=recipe)
+            flash(f"Error updating recipe: {str(e)}", "error")
 
-@bp.route('/recipes/<recipe_id>/translate', methods=['GET', 'POST'])
+    return render_template("recipe_form.html", recipe=recipe)
+
+
+@bp.route("/recipes/<recipe_id>/translate", methods=["GET", "POST"])
 @login_required
 def recipe_translate(recipe_id):
     """Translate recipe and open edit form with translated content"""
     recipe = Recipe.query.get_or_404(recipe_id)
-    
+
     # Check permissions
     if "user_id" not in session or recipe.user_id != session["user_id"]:
         flash(_("You don't have permission to translate this recipe."), "error")
         return redirect(url_for("main.index"))
-    
+
     # Handle POST (same as recipe_edit to save changes)
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
             # Update basic fields
-            recipe.title = request.form.get('title')
-            recipe.description = request.form.get('description')
-            recipe.servings = int(request.form.get('servings', 4))
-           
+            recipe.title = request.form.get("title")
+            recipe.description = request.form.get("description")
+            recipe.servings = int(request.form.get("servings", 4))
+
             # Parse ingredients
-            ingredients_text = request.form.get('ingredients', '')
+            ingredients_text = request.form.get("ingredients", "")
             ingredients_dict = {}
-            for line in ingredients_text.strip().split('\n'):
-                if '|' in line:
-                    key, value = line.split('|', 1)
+            for line in ingredients_text.strip().split("\n"):
+                if "|" in line:
+                    key, value = line.split("|", 1)
                     ingredients_dict[key.strip()] = value.strip()
             recipe.ingredients_dict = ingredients_dict
-           
+
             # Parse instructions
-            instructions_text = request.form.get('instructions', '')
-            recipe.instructions_list = [line.strip() for line in instructions_text.strip().split('\n') if line.strip()]
-           
+            instructions_text = request.form.get("instructions", "")
+            recipe.instructions_list = [
+                line.strip()
+                for line in instructions_text.strip().split("\n")
+                if line.strip()
+            ]
+
             # Parse notes
-            notes_text = request.form.get('notes', '')
-            recipe.notes_list = [line.strip() for line in notes_text.strip().split('\n') if line.strip()]
-           
+            notes_text = request.form.get("notes", "")
+            recipe.notes_list = [
+                line.strip() for line in notes_text.strip().split("\n") if line.strip()
+            ]
+
             # Parse tags
-            tags_text = request.form.get('tags', '')
-            recipe.tags_list = [tag.strip() for tag in tags_text.split(',') if tag.strip()]
-           
+            tags_text = request.form.get("tags", "")
+            recipe.tags_list = [
+                tag.strip() for tag in tags_text.split(",") if tag.strip()
+            ]
+
             # Handle image upload with optimization
-            if 'image' in request.files:
-                file = request.files['image']
+            if "image" in request.files:
+                file = request.files["image"]
                 if file and file.filename and allowed_file(file.filename):
                     # Delete old images
                     if recipe.image_filename:
-                        delete_recipe_images(recipe.image_filename, current_app.config['UPLOAD_FOLDER'])
-                   
+                        delete_recipe_images(
+                            recipe.image_filename, current_app.config["UPLOAD_FOLDER"]
+                        )
+
                     # Process new image
                     filename, thumb_filename = process_recipe_image(
-                        file,
-                        current_app.config['UPLOAD_FOLDER']
+                        file, current_app.config["UPLOAD_FOLDER"]
                     )
                     if filename:
                         recipe.image_filename = filename
-                        flash('Image updated and optimized successfully!', 'success')
+                        flash("Image updated and optimized successfully!", "success")
                     else:
-                        flash('Error processing image. Recipe updated without new image.', 'warning')
-           
+                        flash(
+                            "Error processing image. Recipe updated without new image.",
+                            "warning",
+                        )
+
             db.session.commit()
-            
+
             # Clear the original recipe from session
-            session.pop('original_recipe', None)
-            
-            flash('Recipe updated successfully!', 'success')
-            return redirect(url_for('main.recipe_detail', recipe_id=recipe.id))
-       
+            session.pop("original_recipe", None)
+
+            flash("Recipe updated successfully!", "success")
+            return redirect(url_for("main.recipe_detail", recipe_id=recipe.id))
+
         except Exception as e:
             db.session.rollback()
-            flash(f'Error updating recipe: {str(e)}', 'error')
-    
+            flash(f"Error updating recipe: {str(e)}", "error")
+
     # Handle GET (translate the recipe)
     # Get target language from query parameter
-    target_lang = request.args.get('lang', 'es')
-    
+    target_lang = request.args.get("lang", "es")
+
     # Validate language
-    valid_langs = ['en', 'es', 'de', 'tr']
+    valid_langs = ["en", "es", "de", "tr"]
     if target_lang not in valid_langs:
         flash(_("Invalid language selected."), "error")
-        return redirect(url_for('main.recipe_detail', recipe_id=recipe.id))
-    
+        return redirect(url_for("main.recipe_detail", recipe_id=recipe.id))
+
     try:
         # Store original recipe data in session BEFORE translation
-        session['original_recipe'] = {
-            'title': recipe.title,
-            'description': recipe.description,
-            'ingredients_dict': recipe.ingredients_dict,
-            'instructions_list': recipe.instructions_list,
-            'notes_list': recipe.notes_list,
+        session["original_recipe"] = {
+            "title": recipe.title,
+            "description": recipe.description,
+            "ingredients_dict": recipe.ingredients_dict,
+            "instructions_list": recipe.instructions_list,
+            "notes_list": recipe.notes_list,
         }
-        
+
         # Prepare recipe data for translation
         recipe_data = {
-            'title': recipe.title,
-            'description': recipe.description,
-            'notes_list': recipe.notes_list or [],
-            'ingredients_dict': recipe.ingredients_dict or {},
-            'instructions_list': recipe.instructions_list or [],
-            'servings': recipe.servings,
-            'tags_list': recipe.tags_list or [],
+            "title": recipe.title,
+            "description": recipe.description,
+            "notes_list": recipe.notes_list or [],
+            "ingredients_dict": recipe.ingredients_dict or {},
+            "instructions_list": recipe.instructions_list or [],
+            "servings": recipe.servings,
+            "tags_list": recipe.tags_list or [],
         }
-        
+
         # Translate the recipe
         translated_data = translate_recipe_sync(recipe_data, target_lang)
-        
+
         # Create a temporary recipe object with translated data
         # We don't save it yet - user will save via the form submission
-        translated_recipe = type('obj', (object,), {
-            'id': recipe.id,
-            'title': translated_data['title'],
-            'description': translated_data['description'],
-            'servings': translated_data['servings'],
-            'ingredients_dict': translated_data['ingredients_dict'],
-            'instructions_list': translated_data['instructions_list'],
-            'notes_list': translated_data['notes_list'],
-            'tags_list': translated_data['tags_list'],
-            'image_filename': recipe.image_filename,
-            'user_id': recipe.user_id,
-            'created_at': recipe.created_at,
-            'updated_at': recipe.updated_at,
-            'is_public': recipe.is_public,
-        })()
-        
-        flash(_('Recipe translated successfully! Review and save changes.'), 'success')
-        return render_template('recipe_form.html', 
-                             recipe=translated_recipe, 
-                             is_translation=True,
-                             target_lang=target_lang)
-        
+        translated_recipe = type(
+            "obj",
+            (object,),
+            {
+                "id": recipe.id,
+                "title": translated_data["title"],
+                "description": translated_data["description"],
+                "servings": translated_data["servings"],
+                "ingredients_dict": translated_data["ingredients_dict"],
+                "instructions_list": translated_data["instructions_list"],
+                "notes_list": translated_data["notes_list"],
+                "tags_list": translated_data["tags_list"],
+                "image_filename": recipe.image_filename,
+                "user_id": recipe.user_id,
+                "created_at": recipe.created_at,
+                "updated_at": recipe.updated_at,
+                "is_public": recipe.is_public,
+            },
+        )()
+
+        flash(_("Recipe translated successfully! Review and save changes."), "success")
+        return render_template(
+            "recipe_form.html",
+            recipe=translated_recipe,
+            is_translation=True,
+            target_lang=target_lang,
+        )
+
     except Exception as e:
-        flash(_('Error translating recipe: %(error)s') % {'error': str(e)}, 'error')
-        return redirect(url_for('main.recipe_detail', recipe_id=recipe.id))
+        flash(_("Error translating recipe: %(error)s") % {"error": str(e)}, "error")
+        return redirect(url_for("main.recipe_detail", recipe_id=recipe.id))
 
 
-@bp.route('/recipes/<recipe_id>/delete', methods=['POST'])
+@bp.route("/recipes/<recipe_id>/delete", methods=["POST"])
 @login_required
 def recipe_delete(recipe_id):
     """Delete recipe"""
@@ -400,23 +493,25 @@ def recipe_delete(recipe_id):
     if "user_id" not in session or recipe.user_id != session["user_id"]:
         flash("You don’t have permission to modify this recipe.", "error")
         return redirect(url_for("main.index"))
-    
+
     try:
         # Delete images
         if recipe.image_filename:
-            delete_recipe_images(recipe.image_filename, current_app.config['UPLOAD_FOLDER'])
-        
+            delete_recipe_images(
+                recipe.image_filename, current_app.config["UPLOAD_FOLDER"]
+            )
+
         db.session.delete(recipe)
         db.session.commit()
-        flash('Recipe deleted successfully!', 'success')
+        flash("Recipe deleted successfully!", "success")
     except Exception as e:
         db.session.rollback()
-        flash(f'Error deleting recipe: {str(e)}', 'error')
-    
-    return redirect(url_for('main.index'))
+        flash(f"Error deleting recipe: {str(e)}", "error")
+
+    return redirect(url_for("main.index"))
 
 
-@bp.route('/recipes/<recipe_id>/delete-image', methods=['POST'])
+@bp.route("/recipes/<recipe_id>/delete-image", methods=["POST"])
 @login_required
 def recipe_delete_image(recipe_id):
     """Delete recipe image only (AJAX endpoint)"""
@@ -424,68 +519,76 @@ def recipe_delete_image(recipe_id):
 
     user_id = session.get("user_id")
     if not user_id or recipe.user_id != user_id:
-        return {'success': False, 'message': 'Unauthorized'}, 403
-    
+        return {"success": False, "message": "Unauthorized"}, 403
+
     try:
         if recipe.image_filename:
-            delete_recipe_images(recipe.image_filename, current_app.config['UPLOAD_FOLDER'])
+            delete_recipe_images(
+                recipe.image_filename, current_app.config["UPLOAD_FOLDER"]
+            )
             recipe.image_filename = None
             db.session.commit()
-            return {'success': True, 'message': 'Image deleted successfully'}
+            return {"success": True, "message": "Image deleted successfully"}
         else:
-            return {'success': False, 'message': 'No image to delete'}, 400
+            return {"success": False, "message": "No image to delete"}, 400
     except Exception as e:
         db.session.rollback()
-        return {'success': False, 'message': str(e)}, 500
+        return {"success": False, "message": str(e)}, 500
 
-@bp.route('/image-stats')
+
+@bp.route("/image-stats")
 def image_stats():
     """Show image optimization statistics"""
     import os
     from app.models import Recipe
-    
-    upload_folder = current_app.config['UPLOAD_FOLDER']
+
+    upload_folder = current_app.config["UPLOAD_FOLDER"]
     recipes = Recipe.query.all()
-    
+
     stats = {
-        'total_recipes': len(recipes),
-        'recipes_with_images': sum(1 for r in recipes if r.image_filename),
-        'total_images': 0,
-        'total_thumbnails': 0,
-        'total_size_mb': 0,
-        'thumb_size_mb': 0
+        "total_recipes": len(recipes),
+        "recipes_with_images": sum(1 for r in recipes if r.image_filename),
+        "total_images": 0,
+        "total_thumbnails": 0,
+        "total_size_mb": 0,
+        "thumb_size_mb": 0,
     }
-    
+
     # Count files and sizes
     if os.path.exists(upload_folder):
         for filename in os.listdir(upload_folder):
             if os.path.isfile(os.path.join(upload_folder, filename)):
-                stats['total_images'] += 1
+                stats["total_images"] += 1
                 size = os.path.getsize(os.path.join(upload_folder, filename))
-                stats['total_size_mb'] += size / (1024 * 1024)
-    
-    thumb_folder = os.path.join(upload_folder, 'thumbnails')
+                stats["total_size_mb"] += size / (1024 * 1024)
+
+    thumb_folder = os.path.join(upload_folder, "thumbnails")
     if os.path.exists(thumb_folder):
         for filename in os.listdir(thumb_folder):
             if os.path.isfile(os.path.join(thumb_folder, filename)):
-                stats['total_thumbnails'] += 1
+                stats["total_thumbnails"] += 1
                 size = os.path.getsize(os.path.join(thumb_folder, filename))
-                stats['thumb_size_mb'] += size / (1024 * 1024)
-    
-    return render_template('image_stats.html', stats=stats)
+                stats["thumb_size_mb"] += size / (1024 * 1024)
 
-@bp.route('/recipes/<recipe_id>/save', methods=['POST'])
+    return render_template("image_stats.html", stats=stats)
+
+
+@bp.route("/recipes/<recipe_id>/save", methods=["POST"])
 @login_required
 def recipe_save(recipe_id):
     original = Recipe.query.get_or_404(recipe_id)
-    user_id = session['user_id']
+    user_id = session["user_id"]
 
     # Don’t let users copy their own recipe
     if original.user_id == user_id:
-        return render_template(
-            "components/flash_messages.html",
-            messages=[("warning", "You already own this recipe!")],
-        ), 200, {"HX-Retarget": "#flash-messages", "HX-Swap": "outerHTML"}
+        return (
+            render_template(
+                "components/flash_messages.html",
+                messages=[("warning", "You already own this recipe!")],
+            ),
+            200,
+            {"HX-Retarget": "#flash-messages", "HX-Swap": "outerHTML"},
+        )
     # Prevent copying the same original recipe twice
     elif original.recipe_already_copied(user_id):
         flash("You already copied this recipe!", "warning")
@@ -502,50 +605,46 @@ def recipe_save(recipe_id):
             notes=original.notes,
             tags=original.tags,
             image_filename=original.image_filename,
-            original_id=original.original_id
+            original_id=original.original_id,
         )
         db.session.add(new_recipe)
         db.session.commit()
-        
+
         # Render flash message with data-new-id
         flash_html = render_template(
             "components/flash_messages.html",
             messages=[("success", "Recipe saved to your profile!")],
-            data_new_recipe_id=new_recipe.id
+            data_new_recipe_id=new_recipe.id,
         )
 
         # Append a script that triggers your event
-        flash_html += f'''
+        flash_html += f"""
         <script>
             document.body.dispatchEvent(new CustomEvent("recipeSaved", {{
                 bubbles: true,
                 detail: {{ id: "{new_recipe.id}" }}
             }}));
         </script>
-        '''
+        """
 
-        headers = {
-            "HX-Retarget": "#flash-messages",
-            "HX-Swap": "outerHTML"
-        }
+        headers = {"HX-Retarget": "#flash-messages", "HX-Swap": "outerHTML"}
 
         return flash_html, 200, headers
 
 
-
-@bp.route('/set-language/<language>')
+@bp.route("/set-language/<language>")
 def set_language(language):
     """Language switcher for anonymous users - redirects to settings if logged in"""
-    valid_languages = ['en', 'de', 'es', 'fr']
+    valid_languages = ["en", "de", "es", "fr"]
     if language not in valid_languages:
-        language = 'en'
-    
+        language = "en"
+
     # If logged in, redirect to settings page to change properly
     if current_user.is_authenticated:
-        flash(_('Please change your language preference in settings'), 'info')
-        return redirect(url_for('main.settings'))
-    
+        flash(_("Please change your language preference in settings"), "info")
+        return redirect(url_for("main.settings"))
+
     # For anonymous users, set cookie
-    resp = make_response(redirect(request.referrer or url_for('main.index')))
-    resp.set_cookie('language', language, max_age=60*60*24*365)
+    resp = make_response(redirect(request.referrer or url_for("main.index")))
+    resp.set_cookie("language", language, max_age=60 * 60 * 24 * 365)
     return resp

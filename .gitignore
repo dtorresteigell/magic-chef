@@ -16,6 +16,9 @@ docker-compose.yml
 # PDFs
 *.pdf
 
+# vsCode settings
+.vscode/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
