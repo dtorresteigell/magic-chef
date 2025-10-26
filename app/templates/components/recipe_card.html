@@ -37,15 +37,15 @@
 
         <!-- Meta Info -->
         <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
-            <span>🍽️ {{ recipe.servings }} servings</span>
-            <span>📝 {{ recipe.instructions_list|length }} steps</span>
+            <span>🍽️ {{ recipe.servings }} {{ _('servings') }}</span>
+            <span>📝 {{ recipe.instructions_list|length }} {{ _('steps') }}</span>
         </div>
 
         <!-- Actions -->
         <div class="flex space-x-2">
             <a href="{{ url_for('main.recipe_detail', recipe_id=recipe.id) }}"
                 class="flex-1 bg-orange-600 text-white text-center py-2 rounded hover:bg-orange-700 text-sm font-medium">
-                View Recipe
+                {{ _('View Recipe') }}
             </a>
             <a href="{{ url_for('main.recipe_edit', recipe_id=recipe.id) }}"
                 class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">

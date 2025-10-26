@@ -3,13 +3,6 @@ from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
-
-class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-this'
-    
-    # Fix: Use forward slashes and ensure absolute path
-    db_path = os.path.join(basedir, 'data', 'recipes.db')
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + db_path.replace('\\', '/')
         
 
 class BaseConfig:
@@ -31,6 +24,10 @@ class BaseConfig:
     MAIL_USE_TLS = True
     MAIL_USERNAME = os.getenv("MAIL_USERNAME")
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
+
+    # Babel configuration
+    BABEL_DEFAULT_LOCALE = 'en'
+    BABEL_TRANSLATION_DIRECTORIES = '../translations'
 
 
 class DevConfig(BaseConfig):

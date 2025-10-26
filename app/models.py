@@ -19,6 +19,7 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.String(100))
     last_name = db.Column(db.String(100))
     profile_pic = db.Column(db.Text)  # e.g., path to uploaded image
+    language = db.Column(db.String(5), default='en', nullable=False)
 
     recipes = db.relationship("Recipe", back_populates="user", cascade="all, delete-orphan")
 

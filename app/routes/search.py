@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, session
 from app.models import Recipe
+from flask_babel import gettext as _
 
 bp = Blueprint('search', __name__, url_prefix='/search')
 

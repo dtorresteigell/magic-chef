@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, current_app, session
 from app import db
 from app.utils.auth_helpers import login_required
+from flask_babel import gettext as _
 from app.models import Recipe
 import os
 
@@ -12,7 +13,7 @@ bp = Blueprint('table_view', __name__, url_prefix='/table')
 def index():
     """Recipe table view"""
     if "user_id" not in session:
-        flash("Please log in to see your recipes.", "info")
+        flash(_("Please log in to see your recipes."), "info")
         return redirect(url_for("auth.login"))
     user_id = session.get('user_id', None)
 
@@ -45,7 +46,7 @@ def bulk_delete():
         recipe_ids = request.json.get('recipe_ids', [])
         
         if not recipe_ids:
-            return jsonify({'success': False, 'error': 'No recipes selected'}), 400
+            return jsonify({'success': False, 'error': _('No recipes selected')}), 400
         
         # Get recipes
         recipes = Recipe.query.filter(Recipe.id.in_(recipe_ids)).all()
@@ -62,7 +63,7 @@ def bulk_delete():
         
         return jsonify({
             'success': True,
-            'message': f'{len(recipes)} recipe(s) deleted successfully'
+            'message': _('%(count)d recipe(s) deleted successfully') % {'count': len(recipes)}
         })
     
     except Exception as e:
@@ -81,7 +82,7 @@ def bulk_tag():
             return jsonify({'success': False, 'error': 'No recipes selected'}), 400
         
         if not tag:
-            return jsonify({'success': False, 'error': 'Tag is required'}), 400
+            return jsonify({'success': False, 'error': _('Tag is required')}), 400
         
         # Get recipes
         recipes = Recipe.query.filter(Recipe.id.in_(recipe_ids)).all()
@@ -97,7 +98,7 @@ def bulk_tag():
         
         return jsonify({
             'success': True,
-            'message': f'Tag "{tag}" added to {len(recipes)} recipe(s)'
+            'message': _('Tag "%(tag)s" added to %(count)d recipe(s)') % {'tag': tag, 'count': len(recipes)}
         })
     
     except Exception as e:

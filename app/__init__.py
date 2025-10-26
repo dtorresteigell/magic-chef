@@ -1,5 +1,7 @@
 # app/__init__.py
-from flask import Flask
+from flask import Flask, request, session
+from flask import current_app
+from flask_babel import Babel
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import current_user
@@ -19,6 +21,24 @@ login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 
 mail = Mail()
+
+# Create Babel instance globally (not attached to app yet)
+babel = Babel()
+
+def get_locale():
+    """Determine which language to use"""
+    # 1. Authenticated user? Use their saved preference
+    if current_user and current_user.is_authenticated:
+        return current_user.language
+    
+    # 2. Anonymous user? Check cookie
+    language = request.cookies.get('language')
+    if language:
+        return language
+    
+    # 3. Fall back to browser preference
+    fallback = request.accept_languages.best_match(['en', 'de', 'es', 'fr']) or 'en'
+    return fallback
 
 def wait_for_db(max_attempts=10, delay=1):
     """Wait until database is reachable (used at startup in Docker environments)"""
@@ -43,6 +63,14 @@ def create_app():
     def load_user(user_id):
         return User.query.get(user_id)
     
+    # ADD BABEL CONFIG HERE - AFTER loading config, BEFORE init_app
+    app.config['BABEL_DEFAULT_LOCALE'] = 'en'
+    app.config['BABEL_TRANSLATION_DIRECTORIES'] = '../translations'
+
+    # Initialize Babel with the app
+    babel.init_app(app, locale_selector=get_locale)
+    
+    
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
@@ -50,8 +78,7 @@ def create_app():
     with app.app_context():
         wait_for_db()  # ensures Postgres is ready before continuing
         # Create tables if they don't exist yet
-        db.create_all()
-        
+        db.create_all()    
     
     # Ensure required directories exist
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

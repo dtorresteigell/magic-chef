@@ -22,6 +22,9 @@ gunicorn>=20.1.0
 # AI Integration
 mistralai
 
+# Multilangual Support
+Flask-Babel>=4.0.0
+
 # Email (optional for Phase 4)
 Flask-Mail>=0.9.1
 

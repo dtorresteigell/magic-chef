@@ -1,0 +1,14 @@
+# From root folder
+# 1. Extract new strings from code
+pybabel extract -F babel.cfg -k _l -o messages.pot .
+
+# 2. Update existing translation files
+pybabel update -i messages.pot -d translations
+
+# 3. Edit the .po files and add translations for new strings
+# Look for lines with msgstr "" (empty translations)
+
+# 4. Compile
+pybabel compile -d translations
+
+# 5. Restart your Flask app

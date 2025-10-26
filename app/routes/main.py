@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, session, jsonify, make_response
 from flask_login import current_user
+from flask_babel import gettext as _
 from app import db
 from app.models import Recipe
 from app.utils.image_handler import process_recipe_image, delete_recipe_images, allowed_file
@@ -18,7 +19,7 @@ bp = Blueprint('main', __name__)
 def index():
     """Home page with user-specific recipe list"""
     if "user_id" not in session:
-        flash("Please log in to see your recipes.", "info")
+        flash(_("Please log in to see your recipes.", "info"))
         return redirect(url_for("auth.login"))
 
     recipes = (
@@ -36,7 +37,12 @@ def settings():
         current_user.first_name = request.form.get("first_name")
         current_user.last_name = request.form.get("last_name")
         current_user.email = request.form.get("email")
-
+        
+        # Add language preference
+        language = request.form.get("language")
+        if language in ['en', 'de', 'es', 'fr']:
+            current_user.language = language
+        
         # Handle optional profile picture
         picture = request.files.get("profile_picture")
         if picture and picture.filename:
@@ -44,11 +50,11 @@ def settings():
             path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
             picture.save(path)
             current_user.profile_pic = filename
-
+        
         db.session.commit()
-        flash("Profile updated successfully!", "success")
+        flash(_("Profile updated successfully!"), "success")
         return redirect(url_for("main.settings"))
-
+    
     return render_template("user_settings.html")
 
 @bp.route("/settings/password", methods=["POST"])
@@ -60,24 +66,24 @@ def change_password():
 
     # 1️⃣ Validate old password
     if not check_password_hash(current_user.password_hash, old_password):
-        flash("Incorrect old password.", "error")
+        flash(_("Incorrect old password."), "error")
         return redirect(url_for("main.settings"))
 
     # 2️⃣ Validate new password confirmation
     if new_password != confirm_password:
-        flash("New passwords do not match.", "error")
+        flash(_("New passwords do not match."), "error")
         return redirect(url_for("main.settings"))
 
     # 3️⃣ Optionally enforce minimum password strength
     if len(new_password) < 8:
-        flash("Password must be at least 8 characters long.", "error")
+        flash(_("Password must be at least 8 characters long."), "error")
         return redirect(url_for("main.settings"))
 
     # 4️⃣ Update securely
     current_user.password_hash = generate_password_hash(new_password)
     db.session.commit()
 
-    flash("Password updated successfully!", "success")
+    flash(_("Password updated successfully!"), "success")
     return redirect(url_for("main.settings"))
 
 
@@ -93,14 +99,14 @@ def recipe_detail(recipe_id):
     ).first() is not None
 
     if "user_id" not in session:
-        flash("Please log in first.", "warning")
+        flash(_("Please log in first."), "warning")
         return redirect(url_for("auth.login"))
     else:
         user_id = session["user_id"]
     
     # If recipe belongs to someone else and is not public
     if (recipe.user_id and recipe.user_id != session.get('user_id') and not recipe.is_public): # Later if recipe.user_id != user_id and not recipe.is_public:
-        flash("You are not allowed to view this recipe.", "warning")
+        flash(_("You are not allowed to view this recipe."), "warning")
         return redirect(url_for("main.index"))
 
     return render_template('recipe_detail.html', recipe=recipe, recipe_already_copied=recipe_already_copied)
@@ -112,7 +118,7 @@ def recipe_new():
     """Create new recipe"""
     if request.method == 'POST':
         if "user_id" not in session:
-            flash("Please log in first.", "warning")
+            flash(_("Please log in first."), "warning")
             return redirect(url_for("auth.login"))
         else:
             user_id = session["user_id"]
@@ -164,21 +170,21 @@ def recipe_new():
                         )
                         if filename:
                             recipe.image_filename = filename
-                            flash('Image uploaded and optimized successfully!', 'success')
+                            flash(_('Image uploaded and optimized successfully!'), 'success')
                         else:
-                            flash('Error processing image. Recipe saved without image.', 'warning')
+                            flash(_('Error processing image. Recipe saved without image.'), 'warning')
                 
                 db.session.add(recipe)
                 db.session.flush()
                 recipe.original_id = recipe.id
                 db.session.commit()
                 
-                flash('Recipe created successfully!', 'success')
+                flash(_('Recipe created successfully!'), 'success')
                 return redirect(url_for('main.recipe_detail', recipe_id=recipe.id))
             
             except Exception as e:
                 db.session.rollback()
-                flash(f'Error creating recipe: {str(e)}', 'error')
+                flash(_('Error creating recipe: %(error)s') % {'error': str(e)}, 'error')
                 return redirect(url_for('main.recipe_new'))
     
     return render_template('recipe_form.html', recipe=None)
@@ -191,7 +197,7 @@ def recipe_edit(recipe_id):
     recipe = Recipe.query.get_or_404(recipe_id)
 
     if "user_id" not in session or recipe.user_id != session["user_id"]:
-        flash("You don’t have permission to modify this recipe.", "error")
+        flash(_("You don't have permission to modify this recipe."), "error")
         return redirect(url_for("main.index"))
     
     if request.method == 'POST':
@@ -259,7 +265,7 @@ def recipe_translate(recipe_id):
     
     # Check permissions
     if "user_id" not in session or recipe.user_id != session["user_id"]:
-        flash("You don't have permission to translate this recipe.", "error")
+        flash(_("You don't have permission to translate this recipe."), "error")
         return redirect(url_for("main.index"))
     
     # Handle POST (same as recipe_edit to save changes)
@@ -329,7 +335,7 @@ def recipe_translate(recipe_id):
     # Validate language
     valid_langs = ['en', 'es', 'de', 'tr']
     if target_lang not in valid_langs:
-        flash("Invalid language selected.", "error")
+        flash(_("Invalid language selected."), "error")
         return redirect(url_for('main.recipe_detail', recipe_id=recipe.id))
     
     try:
@@ -374,14 +380,14 @@ def recipe_translate(recipe_id):
             'is_public': recipe.is_public,
         })()
         
-        flash(f'Recipe translated successfully! Review and save changes.', 'success')
+        flash(_('Recipe translated successfully! Review and save changes.'), 'success')
         return render_template('recipe_form.html', 
                              recipe=translated_recipe, 
                              is_translation=True,
                              target_lang=target_lang)
         
     except Exception as e:
-        flash(f'Error translating recipe: {str(e)}', 'error')
+        flash(_('Error translating recipe: %(error)s') % {'error': str(e)}, 'error')
         return redirect(url_for('main.recipe_detail', recipe_id=recipe.id))
 
 
@@ -527,3 +533,19 @@ def recipe_save(recipe_id):
 
 
 
+@bp.route('/set-language/<language>')
+def set_language(language):
+    """Language switcher for anonymous users - redirects to settings if logged in"""
+    valid_languages = ['en', 'de', 'es', 'fr']
+    if language not in valid_languages:
+        language = 'en'
+    
+    # If logged in, redirect to settings page to change properly
+    if current_user.is_authenticated:
+        flash(_('Please change your language preference in settings'), 'info')
+        return redirect(url_for('main.settings'))
+    
+    # For anonymous users, set cookie
+    resp = make_response(redirect(request.referrer or url_for('main.index')))
+    resp.set_cookie('language', language, max_age=60*60*24*365)
+    return resp

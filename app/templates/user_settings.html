@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-8">
-    <h2 class="text-2xl font-bold text-orange-600 mb-6">Account Settings</h2>
-
+    <h2 class="text-2xl font-bold text-orange-600 mb-6">{{ _('Account Settings') }}</h2>
+    
     <!-- Flash messages -->
     <div id="flash-messages">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -16,62 +16,75 @@
         {% endif %}
         {% endwith %}
     </div>
-
+    
     <!-- Profile Update Form -->
     <form method="POST" action="{{ url_for('main.settings') }}" enctype="multipart/form-data" class="space-y-4">
-        <h3 class="text-xl font-semibold text-gray-700">Profile Information</h3>
+        <h3 class="text-xl font-semibold text-gray-700">{{ _('Profile Information') }}</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <label class="block text-gray-600 mb-1">First Name</label>
+                <label class="block text-gray-600 mb-1">{{ _('First Name') }}</label>
                 <input type="text" name="first_name" value="{{ current_user.first_name or '' }}"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
             </div>
             <div>
-                <label class="block text-gray-600 mb-1">Last Name</label>
+                <label class="block text-gray-600 mb-1">{{ _('Last Name') }}</label>
                 <input type="text" name="last_name" value="{{ current_user.last_name or '' }}"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
             </div>
             <div class="md:col-span-2">
-                <label class="block text-gray-600 mb-1">Email</label>
+                <label class="block text-gray-600 mb-1">{{ _('Email') }}</label>
                 <input type="email" name="email" value="{{ current_user.email or '' }}"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
             </div>
+            
+            <!-- ADD LANGUAGE SELECTOR HERE -->
             <div class="md:col-span-2">
-                <label class="block text-gray-600 mb-1">Profile Picture</label>
+                <label class="block text-gray-600 mb-1">{{ _('Preferred Language') }}</label>
+                <select name="language" 
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    <option value="en" {% if current_user.language == 'en' %}selected{% endif %}>English</option>
+                    <option value="de" {% if current_user.language == 'de' %}selected{% endif %}>Deutsch</option>
+                    <option value="es" {% if current_user.language == 'es' %}selected{% endif %}>Español</option>
+                    <option value="fr" {% if current_user.language == 'fr' %}selected{% endif %}>Français</option>
+                </select>
+            </div>
+            
+            <div class="md:col-span-2">
+                <label class="block text-gray-600 mb-1">{{ _('Profile Picture') }}</label>
                 <input type="file" name="profile_picture" class="w-full text-gray-700">
             </div>
         </div>
         <button type="submit"
             class="bg-orange-600 text-white rounded-md px-4 py-2 hover:bg-orange-700 font-medium mt-2">
-            💾 Save Changes
+            💾 {{ _('Save Changes') }}
         </button>
     </form>
-
+    
     <hr class="my-6 border-gray-300">
-
+    
     <!-- Password Change Form -->
     <form method="POST" action="{{ url_for('main.change_password') }}" class="space-y-4">
-        <h3 class="text-xl font-semibold text-gray-700">Change Password</h3>
+        <h3 class="text-xl font-semibold text-gray-700">{{ _('Change Password') }}</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <label class="block text-gray-600 mb-1">Old Password</label>
+                <label class="block text-gray-600 mb-1">{{ _('Old Password') }}</label>
                 <input type="password" name="old_password" required
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
             </div>
             <div>
-                <label class="block text-gray-600 mb-1">New Password</label>
+                <label class="block text-gray-600 mb-1">{{ _('New Password') }}</label>
                 <input type="password" name="new_password" required
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
             </div>
             <div>
-                <label class="block text-gray-600 mb-1">Confirm New Password</label>
+                <label class="block text-gray-600 mb-1">{{ _('Confirm New Password') }}</label>
                 <input type="password" name="confirm_password" required
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
             </div>
         </div>
         <button type="submit"
             class="bg-orange-600 text-white rounded-md px-4 py-2 hover:bg-orange-700 font-medium mt-2">
-            🔒 Update Password
+            🔒 {{ _('Update Password') }}
         </button>
     </form>
 </div>
