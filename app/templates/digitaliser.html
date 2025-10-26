@@ -49,7 +49,7 @@
             <!-- Process Button -->
             <button id="process-btn" onclick="processImage()" disabled
                 class="w-full mt-4 bg-orange-600 text-white py-3 px-6 rounded-lg hover:bg-orange-700 font-medium disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
-                🔄 Process Image
+                🔄 {{ _('Process Image') }}
             </button>
 
             <!-- Loading -->
@@ -61,17 +61,17 @@
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                     </path>
                 </svg>
-                <p class="text-sm text-gray-600 mt-2">Processing image...</p>
+                <p class="text-sm text-gray-600 mt-2">{{ _('Processing image...') }}</p>
             </div>
 
             <!-- Tips -->
             <div class="mt-6 pt-6 border-t">
-                <h3 class="text-sm font-medium text-gray-700 mb-2">💡 Tips for Best Results</h3>
+                <h3 class="text-sm font-medium text-gray-700 mb-2">{{ _('💡 Tips for Best Results') }}</h3>
                 <ul class="text-xs text-gray-600 space-y-1">
-                    <li>✓ Use clear, well-lit photos</li>
-                    <li>✓ Keep handwriting legible</li>
-                    <li>✓ Include all ingredients and steps</li>
-                    <li>✓ Avoid blurry or angled photos</li>
+                    <li>{{ _('✓ Use clear, well-lit photos') }}</li>
+                    <li>{{ _('✓ Keep handwriting legible') }}</li>
+                    <li>{{ _('✓ Include all ingredients and steps') }}</li>
+                    <li>{{ _('✓ Avoid blurry or angled photos') }}</li>
                 </ul>
             </div>
         </div>
@@ -83,8 +83,8 @@
         <!-- Initial State -->
         <div id="initial-state" class="text-center py-12 bg-white rounded-lg shadow-md">
             <div class="text-6xl mb-4">📸</div>
-            <h2 class="text-2xl font-semibold text-gray-900 mb-2">Ready to digitalise a recipe?</h2>
-            <p class="text-gray-600">Upload a photo of your handwritten recipe and let AI do the work!</p>
+            <h2 class="text-2xl font-semibold text-gray-900 mb-2">{{ _('Ready to digitalise a recipe?') }}</h2>
+            <p class="text-gray-600">{{ _('Upload a photo of your handwritten recipe and let AI do the work!') }}</p>
         </div>
 
         <!-- Processing State -->
@@ -96,8 +96,8 @@
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                 </path>
             </svg>
-            <p class="text-gray-600 mt-4 text-lg">Digitising your recipe...</p>
-            <p class="text-gray-500 mt-1 text-sm">This may take a moment</p>
+            <p class="text-gray-600 mt-4 text-lg">{{ _('Digitising your recipe...') }}</p>
+            <p class="text-gray-500 mt-1 text-sm">{{ _('This may take a moment') }}</p>
         </div>
 
         <!-- Recipe Editor -->
@@ -108,11 +108,11 @@
                 <!-- Tabs for Edit/OCR Text -->
                 <div class="flex space-x-4 mb-6 border-b">
                     <button onclick="showTab('edit')" class="px-4 py-2 border-b-2 font-medium" id="edit-tab">
-                        ✏️ Edit Recipe
+                        ✏️ {{ _('Edit Recipe') }}
                     </button>
                     <button onclick="showTab('ocr')" class="px-4 py-2 border-b-2 font-medium text-gray-500"
                         id="ocr-tab">
-                        📝 Extracted Text
+                        📝 {{ _('Extracted Text') }}
                     </button>
                 </div>
 
@@ -122,7 +122,7 @@
                         <!-- Title -->
                         <div>
                             <label for="recipe-title" class="block text-sm font-medium text-gray-700 mb-2">
-                                Recipe Title
+                                {{ _('Recipe Title') }}
                             </label>
                             <input type="text" id="recipe-title"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
@@ -132,7 +132,7 @@
                         <!-- Description -->
                         <div>
                             <label for="recipe-description" class="block text-sm font-medium text-gray-700 mb-2">
-                                Description
+                                {{ _('Description') }}
                             </label>
                             <textarea id="recipe-description" rows="3"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
@@ -142,7 +142,7 @@
                         <!-- Servings -->
                         <div>
                             <label for="recipe-servings" class="block text-sm font-medium text-gray-700 mb-2">
-                                Servings
+                                {{ _('Servings') }}
                             </label>
                             <input type="number" id="recipe-servings" min="1"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
@@ -152,10 +152,10 @@
                         <!-- Ingredients -->
                         <div>
                             <label for="recipe-ingredients" class="block text-sm font-medium text-gray-700 mb-2">
-                                Ingredients
+                                {{ _('Ingredients') }}
                             </label>
                             <p class="text-sm text-gray-500 mb-2">
-                                Format: <code class="bg-gray-100 px-1">ingredient | description</code> (one per line)
+                                {{ _('Format:') }} <code class="bg-gray-100 px-1">{{ _('ingredient | description') }}</code> {{ _('(one per line)') }}
                             </p>
                             <textarea id="recipe-ingredients" rows="8"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 font-mono text-sm"
@@ -165,9 +165,9 @@
                         <!-- Instructions -->
                         <div>
                             <label for="recipe-instructions" class="block text-sm font-medium text-gray-700 mb-2">
-                                Instructions
+                                {{ _('Instructions') }}
                             </label>
-                            <p class="text-sm text-gray-500 mb-2">One step per line</p>
+                            <p class="text-sm text-gray-500 mb-2">{{ _('One step per line') }}</p>
                             <textarea id="recipe-instructions" rows="8"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
                                 required></textarea>
@@ -176,9 +176,9 @@
                         <!-- Notes -->
                         <div>
                             <label for="recipe-notes" class="block text-sm font-medium text-gray-700 mb-2">
-                                Notes
+                                {{ _('Notes') }}
                             </label>
-                            <p class="text-sm text-gray-500 mb-2">One note per line</p>
+                            <p class="text-sm text-gray-500 mb-2">{{ _('One note per line') }}</p>
                             <textarea id="recipe-notes" rows="3"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"></textarea>
                         </div>
@@ -186,9 +186,9 @@
                         <!-- Tags -->
                         <div>
                             <label for="recipe-tags" class="block text-sm font-medium text-gray-700 mb-2">
-                                Tags
+                                {{ _('Tags') }}
                             </label>
-                            <p class="text-sm text-gray-500 mb-2">Comma-separated</p>
+                            <p class="text-sm text-gray-500 mb-2">{{ _('Comma-separated') }}</p>
                             <input type="text" id="recipe-tags"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500">
                         </div>
@@ -197,7 +197,7 @@
                         <div class="flex space-x-4 pt-4">
                             <button type="button" onclick="saveRecipe()"
                                 class="flex-1 bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 font-medium">
-                                💾 Save Recipe
+                                {{ _('💾 Save Recipe') }}
                             </button>
                             <button type="button" onclick="discardRecipe()"
                                 class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium">
@@ -407,16 +407,16 @@
                     alert(data.message);
                     resetToStart();
                 } else {
-                    alert('Error saving recipe: ' + data.error);
+                    alert("{{ _('Error saving recipe:') }} " + data.error);
                 }
             })
             .catch(error => {
-                alert('Network error: ' + error);
+                alert("{{ _('Network error:') }} " + error);
             });
     }
 
     function discardRecipe() {
-        if (confirm('Discard this recipe and start over?')) {
+        if (confirm("{{ _('Discard this recipe and start over?') }}")) {
             resetToStart();
         }
     }
