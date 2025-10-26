@@ -10,6 +10,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+# Make sure entrypoint is executable
+RUN chmod +x /entrypoint.sh
+
 ENV PYTHONUNBUFFERED=1
 ENV PORT=5000
 
