@@ -1,4 +1,5 @@
 name: Build and Push to OCIR
+
 on:
   push:
     branches: [ main ]
@@ -6,19 +7,25 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Log in to OCIR
-        run: |
-          echo ${{ secrets.OCIR_AUTH_TOKEN }} | docker login ${REGISTRY} -u "${{ secrets.OCIR_USERNAME }}" --password-stdin
         env:
           REGISTRY: ${{ secrets.OCIR_REGION }}.ocir.io
+        run: |
+          echo "${{ secrets.OCIR_AUTH_TOKEN }}" | docker login ${REGISTRY} -u "${{ secrets.OCIR_USERNAME }}" --password-stdin
 
       - name: Build image
-        run: docker build -t ${REGISTRY}/${{ secrets.OCIR_REPO }}:latest .
-
-      - name: Push image
-        run: docker push ${REGISTRY}/${{ secrets.OCIR_REPO }}:latest
         env:
           REGISTRY: ${{ secrets.OCIR_REGION }}.ocir.io
+        run: |
+          docker build -t ${REGISTRY}/${{ secrets.OCIR_REPO }}:latest .
+
+      - name: Push image
+        env:
+          REGISTRY: ${{ secrets.OCIR_REGION }}.ocir.io
+        run: |
+          docker push ${REGISTRY}/${{ secrets.OCIR_REPO }}:latest
