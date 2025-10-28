@@ -185,7 +185,7 @@ def list_conversations():
 def get_llm_response(user_message, chat_history):
     """Get response from LLM with user's language context"""
     user_language = get_locale()
-    language_names = {"en": "English", "de": "German", "es": "Spanish", "fr": "French"}
+    language_names = {"en": "English", "de": "German", "es": "Spanish"}
     language_name = language_names.get(user_language, "English")
 
     system_prompt = f"""You are a helpful cooking assistant. You help users with:

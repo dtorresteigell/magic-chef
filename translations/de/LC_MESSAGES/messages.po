@@ -88,32 +88,28 @@ msgid "Your password has been updated!"
 msgstr "Ihr Passwort wurde aktualisiert!"
 
 #: app/routes/chat.py:126 app/templates/components/chat_message.html:9
-#, fuzzy
 msgid "Create this recipe"
-msgstr "Rezept erstellen"
+msgstr "Dieses Rezept erstellen"
 
 #: app/routes/chat.py:146
 msgid "Sorry, I encountered an error. Please try again."
 msgstr "Entschuldigung, es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
 
 #: app/routes/chat.py:318
-#, fuzzy
 msgid "Recipe from conversation"
-msgstr "Meine Rezeptsammlung"
+msgstr "Rezept aus dem Gespräch"
 
 #: app/routes/chat.py:319
 msgid "Recipe discussed in chat"
 msgstr "Im Chat besprochenes Rezept"
 
 #: app/routes/chat.py:321
-#, fuzzy
 msgid "ingredient | amount"
-msgstr "Zutaten"
+msgstr "Zutat | Menge"
 
 #: app/routes/chat.py:322
-#, fuzzy
 msgid "Add instructions here"
-msgstr "Anleitung"
+msgstr "Fügen Sie hier Anweisungen hinzu"
 
 #: app/routes/chat.py:324
 msgid "chat, custom"
@@ -439,7 +435,6 @@ msgid "Toggle dropdown menu"
 msgstr "Dropdown-Menü umschalten"
 
 #: app/templates/base.html:322
-#, fuzzy
 msgid "Error sending message"
 msgstr "Fehler beim Senden der Nachricht"
 
@@ -448,9 +443,8 @@ msgid "Clear all messages?"
 msgstr "Alle Nachrichten löschen?"
 
 #: app/templates/base.html:366
-#, fuzzy
 msgid "Error clearing chat"
-msgstr "Fehler beim Leeren des Chats"
+msgstr "Fehler beim Löschen des Chats"
 
 #: app/templates/digitaliser.html:3 app/templates/digitaliser.html:7
 msgid "Recipe Digitaliser"
@@ -479,7 +473,6 @@ msgid "Process Image"
 msgstr "Bild verarbeiten"
 
 #: app/templates/digitaliser.html:64
-#, fuzzy
 msgid "Processing image..."
 msgstr "Bild wird verarbeitet..."
 
@@ -531,14 +524,12 @@ msgid "Extracted Text"
 msgstr "Extrahierter Text"
 
 #: app/templates/digitaliser.html:200
-#, fuzzy
 msgid "💾 Save Recipe"
 msgstr "💾 Rezept speichern"
 
 #: app/templates/digitaliser.html:410
-#, fuzzy
 msgid "Error saving recipe:"
-msgstr "Fehler beim Speichern des Rezepts: %(error)s"
+msgstr "Fehler beim Speichern des Rezepts:"
 
 #: app/templates/digitaliser.html:414 app/templates/table_view.html:420
 #: app/templates/table_view.html:466
@@ -606,38 +597,30 @@ msgid "Back to Recipes"
 msgstr "Zurück zu den Rezepten"
 
 #: app/templates/index.html:7
-#, fuzzy
 msgid "My Recipes"
 msgstr "Meine Rezepte"
 
 #: app/templates/index.html:8
-#, fuzzy
 msgid "Browse your delicious recipe collection"
 msgstr "Durchstöbern Sie Ihre köstliche Rezeptsammlung"
 
 #: app/templates/index.html:17
-#, fuzzy
 msgid "Quick search recipes..."
 msgstr "Rezepte schnell durchsuchen..."
 
 #: app/templates/index.html:21
-#, fuzzy
 msgid "Advanced Search"
 msgstr "Erweiterte Suche"
 
-#: app/templates/index.html:61 app/templates/pdf_select.html:110
-#: app/templates/table_view.html:291
-#, fuzzy
+#: app/templates/index.html:61 app/templates/pdf_select.html:110 app/templates/table_view.html:291
 msgid "No recipes yet"
-msgstr "Noch keine Rezepte"
+msgstr "Noch keine Rezepte vorhanden"
 
 #: app/templates/index.html:62 app/templates/table_view.html:293
 msgid "Start building your collection!"
 msgstr "Beginnen Sie mit dem Aufbau Ihrer Sammlung"
 
-#: app/templates/index.html:65 app/templates/pdf_select.html:114
-#: app/templates/table_view.html:298
-#, fuzzy
+#: app/templates/index.html:65 app/templates/pdf_select.html:114 app/templates/table_view.html:298
 msgid "Create Your First Recipe"
 msgstr "Erstellen Sie Ihr erstes Rezept"
 
@@ -811,7 +794,6 @@ msgid "NOTES:"
 msgstr "NOTIZEN:"
 
 #: app/templates/recipe_form.html:113
-#, fuzzy
 msgid "Recipe from Chat"
 msgstr "Rezept aus dem Chat"
 
@@ -958,14 +940,12 @@ msgstr ""
 "Rezepte zu finden"
 
 #: app/templates/table_view.html:1
-#, fuzzy
 msgid "Recipe Table"
 msgstr "Rezepttabelle"
 
 #: app/templates/table_view.html:5
-#, fuzzy
 msgid "Recipe Table View"
-msgstr "Rezepttabellenansicht"
+msgstr "Rezept-Tabellenansicht"
 
 #: app/templates/table_view.html:7
 msgid "Manage all your recipes in one place"
