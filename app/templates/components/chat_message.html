@@ -1,0 +1,15 @@
+<div class="flex {% if message.role == 'user' %}justify-end{% else %}justify-start{% endif %}">
+    <div class="max-w-[80%] {% if message.role == 'user' %}bg-orange-600 text-white{% else %}bg-gray-100 text-gray-800{% endif %} rounded-lg px-4 py-2">
+        {{ message.content }}
+        
+        {% if message.metadata and message.metadata.action == 'save_recipe' %}
+        <div class="mt-2 pt-2 border-t border-white/20">
+            <a href="{{ url_for('main.recipe_new', prefill=message.metadata.recipe_data|tojson|urlencode) }}"
+            class="text-sm underline">
+            {{ _('Create this recipe') }} →
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
