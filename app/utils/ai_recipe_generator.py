@@ -6,6 +6,53 @@ from flask import current_app
 from flask_babel import gettext as _
 
 
+DISH_IDEAS_PROMPT = """You are an expert chef specializing in creative cuisine. Your task is to suggest dish ideas based on available ingredients.
+
+Always respond in this exact JSON format:
+{
+  "dish_ideas": ["Dish title 1", "Dish title 2", ...]
+}
+
+Key guidelines:
+- When told to use only specific ingredients, restrict to those plus common staples (oil, salt, pasta, rice, onions, garlic, etc.)
+- When allowed to add ingredients, focus on complementing the provided ones while keeping the original ingredients central
+- Ensure all dishes are practical and realistically cookable
+- Provide diverse suggestions across different cuisines and cooking methods
+- Keep titles clear and appetizing
+- Use standard recipe naming conventions
+
+The titles should be specific enough to understand the main components but concise enough to be readable."""
+
+CREATE_RECIPE_PROMPT = """You are an experienced chef and recipe writer. Your task is to create detailed, practical recipes that are easy to follow.
+
+Always respond in this exact JSON format:
+{
+  "title": "Recipe title",
+  "description": "Brief description of the dish and its key features",
+  "notes": ["Helpful tips", "Serving suggestions", "Storage advice"],
+  "ingredients": {
+    "servings": 4,
+    "items": {
+      "ingredient name": "precise quantity and any preparation notes"
+    }
+  },
+  "instructions": [
+    "Clear step-by-step instructions",
+    "Each step as a complete sentence"
+  ]
+}
+
+Key guidelines:
+- Write clear, precise instructions in a step-by-step format
+- Include exact measurements and quantities
+- Add helpful notes about preparation, storage, or variations
+- Ensure ingredients list matches the instructions exactly
+- Keep the recipe practical and achievable for home cooks
+- Include tips for best results and common pitfalls to avoid
+
+Each instruction should be a complete, actionable sentence."""
+
+
 def parse_agent_json(text: str):
     """
     Extracts JSON from a string that may be wrapped in Markdown code fences.
@@ -22,17 +69,12 @@ def parse_agent_json(text: str):
 
 
 class MistralRecipeGenerator:
-    """Interface to Mistral AI agent for recipe generation"""
+    """Interface to Mistral AI for recipe generation"""
 
     def __init__(self):
         self.api_key = os.environ.get("COOK_AGENT_KEY")
-        self.agent_id = os.environ.get("AGENT_ID")
-
-        if not self.api_key or not self.agent_id:
-            raise ValueError(
-                _("COOK_AGENT_KEY and AGENT_ID must be set in environment")
-            )
-
+        if not self.api_key:
+            raise ValueError(_("COOK_AGENT_KEY must be set in environment"))
         self.client = Mistral(api_key=self.api_key)
 
     def generate_dish_ideas(self, ingredients_list, num_ideas=10, use_only=False):
@@ -52,18 +94,26 @@ class MistralRecipeGenerator:
         """
         num_ideas = min(num_ideas, 20)  # Cap at 20
 
-        user_input = (
-            f"dish_ideas(len={num_ideas}, list={ingredients_list}, use_only={use_only})"
-        )
+        user_input = f"Create {num_ideas} recipe ideas using these ingredients: {', '.join(ingredients_list)}. "
+        if use_only:
+            user_input += "Use ONLY these ingredients plus basic kitchen staples (salt, oil, etc)."
+        else:
+            user_input += "You can suggest additional complementary ingredients."
 
         try:
-            response = self.client.beta.conversations.start(
-                agent_id=self.agent_id, inputs=user_input
+            response = self.client.chat.complete(
+                messages=[
+                    {"role": "system", "content": DISH_IDEAS_PROMPT},
+                    {"role": "user", "content": user_input},
+                ],
+                model="mistral-large-latest",
+                temperature=0.7,
+                response_format={"type": "json_object"},
+                safe_prompt=True,
             )
 
-            raw_text = response.outputs[0].content
+            raw_text = response.choices[0].message.content
             data = parse_agent_json(raw_text)
-
             return data.get("dish_ideas", [])
 
         except Exception as e:
@@ -87,16 +137,25 @@ class MistralRecipeGenerator:
         Raises:
             Exception: If API call fails
         """
-        user_input = (
-            f'recipe(title="{title}", list={ingredients_list}, use_only={use_only})'
-        )
+        user_input = f"Create a detailed recipe for '{title}' using these ingredients: {', '.join(ingredients_list)}. "
+        if use_only:
+            user_input += "Use ONLY these ingredients plus basic kitchen staples (salt, oil, etc)."
+        else:
+            user_input += "You can suggest additional complementary ingredients."
 
         try:
-            response = self.client.beta.conversations.start(
-                agent_id=self.agent_id, inputs=user_input
+            response = self.client.chat.complete(
+                messages=[
+                    {"role": "system", "content": CREATE_RECIPE_PROMPT},
+                    {"role": "user", "content": user_input},
+                ],
+                model="mistral-large-latest",
+                temperature=0.7,
+                response_format={"type": "json_object"},
+                safe_prompt=True,
             )
 
-            raw_text = response.outputs[0].content
+            raw_text = response.choices[0].message.content
 
             # ========== DEBUG PRINT ==========
             print("\n" + "=" * 80)

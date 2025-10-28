@@ -242,3 +242,32 @@ class Recipe(db.Model):
                 continue
 
         return matching
+
+
+# === CHAT MESSAGE MODEL ===
+class ChatMessage(db.Model, UserMixin):
+    __tablename__ = "chat_messages"
+
+    id = db.Column(db.Integer, primary_key=True)
+    conversation_id = db.Column(db.String(36), nullable=False, index=True)  # UUID
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    role = db.Column(db.String(20), nullable=False)  # 'user' or 'assistant'
+    content = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    # Relationship
+    user = db.relationship("User", backref=db.backref("chat_messages", lazy="dynamic"))
+
+    def __repr__(self):
+        return f"<ChatMessage {self.id} - {self.role}>"
+
+    def to_dict(self):
+        """Convert to dictionary for easy serialization"""
+        return {
+            "id": self.id,
+            "conversation_id": self.conversation_id,
+            "role": self.role,
+            "content": self.content,
+            "timestamp": self.timestamp.isoformat(),
+            "metadata": {},
+        }

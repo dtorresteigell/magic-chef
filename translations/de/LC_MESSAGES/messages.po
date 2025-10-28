@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-10-26 02:33+0200\n"
+"POT-Creation-Date: 2025-10-27 22:33+0100\n"
 "PO-Revision-Date: 2025-10-25 21:07+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: de\n"
@@ -18,28 +18,28 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.17.0\n"
 
-#: app/routes/ai_recipes.py:31
+#: app/routes/ai_recipes.py:49
 msgid "Please enter at least one ingredient"
 msgstr "Bitte geben Sie mindestens eine Zutat ein"
 
-#: app/routes/ai_recipes.py:72
+#: app/routes/ai_recipes.py:99
 msgid "Dish title is required"
 msgstr "Gerichttitel ist erforderlich"
 
-#: app/routes/ai_recipes.py:75
+#: app/routes/ai_recipes.py:105
 msgid "Ingredients list is required"
 msgstr "Zutatenliste ist erforderlich"
 
-#: app/routes/ai_recipes.py:100
+#: app/routes/ai_recipes.py:130
 msgid "Recipe data is required"
 msgstr "Rezeptdaten sind erforderlich"
 
-#: app/routes/ai_recipes.py:103 app/routes/main.py:102 app/routes/main.py:121
+#: app/routes/ai_recipes.py:135 app/routes/main.py:122 app/routes/main.py:166
 #: app/utils/auth_helpers.py:23
 msgid "Please log in first."
 msgstr "Bitte melden Sie sich zuerst an."
 
-#: app/routes/ai_recipes.py:118
+#: app/routes/ai_recipes.py:151
 msgid "Recipe saved successfully!"
 msgstr "Rezept erfolgreich gespeichert!"
 
@@ -87,8 +87,40 @@ msgstr "Passwörter müssen übereinstimmen"
 msgid "Your password has been updated!"
 msgstr "Ihr Passwort wurde aktualisiert!"
 
+#: app/routes/chat.py:126 app/templates/components/chat_message.html:9
+#, fuzzy
+msgid "Create this recipe"
+msgstr "Rezept erstellen"
+
+#: app/routes/chat.py:146
+msgid "Sorry, I encountered an error. Please try again."
+msgstr "Entschuldigung, es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+
+#: app/routes/chat.py:318
+#, fuzzy
+msgid "Recipe from conversation"
+msgstr "Meine Rezeptsammlung"
+
+#: app/routes/chat.py:319
+msgid "Recipe discussed in chat"
+msgstr "Im Chat besprochenes Rezept"
+
+#: app/routes/chat.py:321
+#, fuzzy
+msgid "ingredient | amount"
+msgstr "Zutaten"
+
+#: app/routes/chat.py:322
+#, fuzzy
+msgid "Add instructions here"
+msgstr "Anleitung"
+
+#: app/routes/chat.py:324
+msgid "chat, custom"
+msgstr "Chat, benutzerdefiniert"
+
 #: app/routes/digitaliser.py:24 app/routes/digitaliser.py:87
-#: app/routes/main.py:22 app/routes/table_view.py:16
+#: app/routes/main.py:38 app/routes/table_view.py:16
 msgid "Please log in to see your recipes."
 msgstr "Bitte melden Sie sich an, um Ihre Rezepte zu sehen."
 
@@ -96,69 +128,69 @@ msgstr "Bitte melden Sie sich an, um Ihre Rezepte zu sehen."
 msgid "Recipe data required"
 msgstr "Rezeptdaten erforderlich"
 
-#: app/routes/main.py:55
+#: app/routes/main.py:72
 msgid "Profile updated successfully!"
 msgstr "Profil erfolgreich aktualisiert!"
 
-#: app/routes/main.py:69
+#: app/routes/main.py:87
 msgid "Incorrect old password."
 msgstr "Falsches altes Passwort."
 
-#: app/routes/main.py:74
+#: app/routes/main.py:92
 msgid "New passwords do not match."
 msgstr "Neue Passwörter stimmen nicht überein."
 
-#: app/routes/main.py:79
+#: app/routes/main.py:97
 msgid "Password must be at least 8 characters long."
 msgstr "Das Passwort muss mindestens 8 Zeichen lang sein."
 
-#: app/routes/main.py:86
+#: app/routes/main.py:104
 msgid "Password updated successfully!"
 msgstr "Passwort erfolgreich aktualisiert!"
 
-#: app/routes/main.py:109
+#: app/routes/main.py:133
 msgid "You are not allowed to view this recipe."
 msgstr "Sie dürfen dieses Rezept nicht ansehen."
 
-#: app/routes/main.py:173
+#: app/routes/main.py:226
 msgid "Image uploaded and optimized successfully!"
 msgstr "Bild erfolgreich hochgeladen und optimiert!"
 
-#: app/routes/main.py:175
+#: app/routes/main.py:232
 msgid "Error processing image. Recipe saved without image."
 msgstr "Fehler bei der Bildverarbeitung. Rezept ohne Bild gespeichert."
 
-#: app/routes/main.py:182
+#: app/routes/main.py:242
 msgid "Recipe created successfully!"
 msgstr "Rezept erfolgreich erstellt!"
 
-#: app/routes/main.py:187
+#: app/routes/main.py:248
 #, python-format
 msgid "Error creating recipe: %(error)s"
 msgstr "Fehler beim Erstellen des Rezepts: %(error)s"
 
-#: app/routes/main.py:200
+#: app/routes/main.py:262
 msgid "You don't have permission to modify this recipe."
 msgstr "Sie haben keine Berechtigung, dieses Rezept zu ändern."
 
-#: app/routes/main.py:268
+#: app/routes/main.py:343
 msgid "You don't have permission to translate this recipe."
 msgstr "Sie haben keine Berechtigung, dieses Rezept zu übersetzen."
 
-#: app/routes/main.py:338
+#: app/routes/main.py:425
 msgid "Invalid language selected."
 msgstr "Ungültige Sprache ausgewählt."
 
-#: app/routes/main.py:383
+#: app/routes/main.py:474
 msgid "Recipe translated successfully! Review and save changes."
 msgstr "Rezept erfolgreich übersetzt! Überprüfen und speichern Sie die Änderungen."
 
-#: app/routes/main.py:390
+#: app/routes/main.py:483
 #, python-format
 msgid "Error translating recipe: %(error)s"
 msgstr "Fehler beim Übersetzen des Rezepts: %(error)s"
 
-#: app/routes/main.py:545
+#: app/routes/main.py:644
 msgid "Please change your language preference in settings"
 msgstr "Bitte ändern Sie Ihre Spracheinstellung in den Einstellungen"
 
@@ -197,11 +229,11 @@ msgstr "Tag \"%(tag)s\" zu %(count)d Rezept(en) hinzugefügt"
 msgid "AI Recipe Generator"
 msgstr "KI-Rezeptgenerator"
 
-#: app/templates/ai_recipes.html:3 app/templates/base.html:7
-#: app/templates/base.html:82 app/templates/digitaliser.html:3
+#: app/templates/ai_recipes.html:3 app/templates/base.html:6
+#: app/templates/base.html:87 app/templates/digitaliser.html:3
 #: app/templates/index.html:3 app/templates/pdf_select.html:3
-#: app/templates/recipe_detail.html:3 app/templates/recipe_form.html:3
-#: app/templates/search.html:3 app/templates/table_view.html:3
+#: app/templates/recipe_detail.html:3 app/templates/recipe_form.html:2
+#: app/templates/search.html:3 app/templates/table_view.html:2
 msgid "Recipe App"
 msgstr "Rezept-App"
 
@@ -211,7 +243,7 @@ msgstr "Lassen Sie KI aus Ihren Zutaten köstliche Rezepte erstellen"
 
 #: app/templates/ai_recipes.html:17 app/templates/ai_recipes.html:182
 #: app/templates/digitaliser.html:155 app/templates/recipe_detail.html:155
-#: app/templates/recipe_form.html:144 app/templates/table_view.html:123
+#: app/templates/recipe_form.html:162 app/templates/table_view.html:138
 msgid "Ingredients"
 msgstr "Zutaten"
 
@@ -292,22 +324,22 @@ msgid "Edit Your Recipe"
 msgstr "Bearbeiten Sie Ihr Rezept"
 
 #: app/templates/ai_recipes.html:152 app/templates/digitaliser.html:125
-#: app/templates/recipe_form.html:114
+#: app/templates/recipe_form.html:129
 msgid "Recipe Title"
 msgstr "Rezepttitel"
 
 #: app/templates/ai_recipes.html:162 app/templates/digitaliser.html:135
-#: app/templates/recipe_detail.html:148 app/templates/recipe_form.html:124
+#: app/templates/recipe_detail.html:148 app/templates/recipe_form.html:141
 msgid "Description"
 msgstr "Beschreibung"
 
 #: app/templates/ai_recipes.html:172 app/templates/digitaliser.html:145
-#: app/templates/recipe_form.html:134 app/templates/table_view.html:116
+#: app/templates/recipe_form.html:151 app/templates/table_view.html:130
 msgid "Servings"
 msgstr "Portionen"
 
 #: app/templates/ai_recipes.html:185 app/templates/digitaliser.html:158
-#: app/templates/recipe_form.html:147
+#: app/templates/recipe_form.html:165
 msgid "Format:"
 msgstr "Format:"
 
@@ -316,32 +348,32 @@ msgid "ingredient | description"
 msgstr "Zutat | Beschreibung"
 
 #: app/templates/ai_recipes.html:185 app/templates/digitaliser.html:158
-#: app/templates/recipe_form.html:147
+#: app/templates/recipe_form.html:165
 msgid "(one per line)"
 msgstr "(eine pro Zeile)"
 
 #: app/templates/ai_recipes.html:195 app/templates/digitaliser.html:168
-#: app/templates/recipe_detail.html:172 app/templates/recipe_form.html:157
+#: app/templates/recipe_detail.html:172 app/templates/recipe_form.html:183
 msgid "Instructions"
 msgstr "Anleitung"
 
 #: app/templates/ai_recipes.html:197 app/templates/digitaliser.html:170
-#: app/templates/recipe_form.html:160
+#: app/templates/recipe_form.html:186
 msgid "One step per line"
 msgstr "Ein Schritt pro Zeile"
 
 #: app/templates/ai_recipes.html:206 app/templates/digitaliser.html:179
-#: app/templates/recipe_detail.html:189 app/templates/recipe_form.html:170
+#: app/templates/recipe_detail.html:189 app/templates/recipe_form.html:204
 msgid "Notes"
 msgstr "Notizen"
 
 #: app/templates/ai_recipes.html:208 app/templates/digitaliser.html:181
-#: app/templates/recipe_form.html:173
+#: app/templates/recipe_form.html:207
 msgid "One note per line"
 msgstr "Eine Notiz pro Zeile"
 
 #: app/templates/ai_recipes.html:216 app/templates/digitaliser.html:189
-#: app/templates/recipe_form.html:183 app/templates/table_view.html:131
+#: app/templates/recipe_form.html:225 app/templates/table_view.html:150
 msgid "Tags"
 msgstr "Tags"
 
@@ -357,54 +389,68 @@ msgstr "Rezept speichern"
 msgid "Back to Ideas"
 msgstr "Zurück zu den Ideen"
 
-#: app/templates/base.html:101
+#: app/templates/base.html:108
 msgid "Home"
 msgstr "Startseite"
 
-#: app/templates/base.html:105
+#: app/templates/base.html:114
 msgid "Table View"
 msgstr "Tabellenansicht"
 
-#: app/templates/base.html:109
+#: app/templates/base.html:120
 msgid "Search"
 msgstr "Suchen"
 
-#: app/templates/base.html:113 app/templates/table_view.html:33
+#: app/templates/base.html:126 app/templates/table_view.html:43
 msgid "Create Cookbook"
 msgstr "Kochbuch erstellen"
 
-#: app/templates/base.html:120
+#: app/templates/base.html:134
 msgid "AI Tools"
 msgstr "KI-Werkzeuge"
 
-#: app/templates/base.html:130
+#: app/templates/base.html:156
 msgid "Generate Recipes"
 msgstr "Rezepte generieren"
 
-#: app/templates/base.html:134
+#: app/templates/base.html:162
 msgid "Digitaliser"
 msgstr "Digitalisierung"
 
-#: app/templates/base.html:154
+#: app/templates/base.html:184
 msgid "New Recipe"
 msgstr "Neues Rezept"
 
-#: app/templates/base.html:158
+#: app/templates/base.html:190
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: app/templates/base.html:163
+#: app/templates/base.html:197
 msgid "Logout"
 msgstr "Abmelden"
 
 #: app/templates/auth/login.html:2 app/templates/auth/login.html:6
-#: app/templates/base.html:171
+#: app/templates/base.html:207
 msgid "Login"
 msgstr "Anmelden"
 
-#: app/templates/base.html:207
+#: app/templates/base.html:244
 msgid "Toggle dropdown menu"
 msgstr "Dropdown-Menü umschalten"
+
+#: app/templates/base.html:322
+#, fuzzy
+msgid "Error sending message"
+msgstr "Fehler beim Senden der Nachricht"
+
+#: app/templates/base.html:350
+msgid "Clear all messages?"
+msgstr "Alle Nachrichten löschen?"
+
+#: app/templates/base.html:366
+#, fuzzy
+msgid "Error clearing chat"
+msgstr "Fehler beim Leeren des Chats"
 
 #: app/templates/digitaliser.html:3 app/templates/digitaliser.html:7
 msgid "Recipe Digitaliser"
@@ -420,11 +466,11 @@ msgstr ""
 msgid "Upload Recipe Image"
 msgstr "Rezeptbild hochladen"
 
-#: app/templates/digitaliser.html:33 app/templates/recipe_form.html:226
+#: app/templates/digitaliser.html:33 app/templates/recipe_form.html:269
 msgid "Click to upload"
 msgstr "Zum Hochladen klicken"
 
-#: app/templates/digitaliser.html:34 app/templates/recipe_form.html:227
+#: app/templates/digitaliser.html:34 app/templates/recipe_form.html:270
 msgid "or drag and drop"
 msgstr "oder per Drag & Drop"
 
@@ -476,7 +522,7 @@ msgid "This may take a moment"
 msgstr "Dies kann einen Moment dauern"
 
 #: app/templates/digitaliser.html:111 app/templates/recipe_detail.html:71
-#: app/templates/recipe_form.html:107
+#: app/templates/recipe_form.html:122
 msgid "Edit Recipe"
 msgstr "Rezept bearbeiten"
 
@@ -494,8 +540,8 @@ msgstr "💾 Rezept speichern"
 msgid "Error saving recipe:"
 msgstr "Fehler beim Speichern des Rezepts: %(error)s"
 
-#: app/templates/digitaliser.html:414 app/templates/table_view.html:345
-#: app/templates/table_view.html:391
+#: app/templates/digitaliser.html:414 app/templates/table_view.html:420
+#: app/templates/table_view.html:466
 msgid "Network error:"
 msgstr "Netzwerkfehler"
 
@@ -507,7 +553,7 @@ msgstr "Dieses Rezept verwerfen und neu beginnen?"
 msgid "Image Statistics"
 msgstr "Bildstatistiken"
 
-#: app/templates/image_stats.html:13 app/templates/table_view.html:62
+#: app/templates/image_stats.html:13 app/templates/table_view.html:80
 msgid "Total Recipes"
 msgstr "Gesamtanzahl Rezepte"
 
@@ -580,17 +626,17 @@ msgid "Advanced Search"
 msgstr "Erweiterte Suche"
 
 #: app/templates/index.html:61 app/templates/pdf_select.html:110
-#: app/templates/table_view.html:241
+#: app/templates/table_view.html:291
 #, fuzzy
 msgid "No recipes yet"
 msgstr "Noch keine Rezepte"
 
-#: app/templates/index.html:62 app/templates/table_view.html:242
+#: app/templates/index.html:62 app/templates/table_view.html:293
 msgid "Start building your collection!"
 msgstr "Beginnen Sie mit dem Aufbau Ihrer Sammlung"
 
 #: app/templates/index.html:65 app/templates/pdf_select.html:114
-#: app/templates/table_view.html:245
+#: app/templates/table_view.html:298
 #, fuzzy
 msgid "Create Your First Recipe"
 msgstr "Erstellen Sie Ihr erstes Rezept"
@@ -615,7 +661,7 @@ msgstr "Meine Rezeptsammlung"
 msgid "e.g., Autumn Comfort Food Collection"
 msgstr "z.B. Herbstliche Wohlfühlrezepte"
 
-#: app/templates/pdf_select.html:27 app/templates/table_view.html:19
+#: app/templates/pdf_select.html:27 app/templates/table_view.html:22
 msgid "Select All"
 msgstr "Alle auswählen"
 
@@ -692,7 +738,7 @@ msgstr "Türkisch (Türkçe)"
 msgid "Are you sure you want to delete this recipe?"
 msgstr "Sind Sie sicher, dass Sie dieses Rezept löschen möchten?"
 
-#: app/templates/recipe_detail.html:126 app/templates/table_view.html:41
+#: app/templates/recipe_detail.html:126 app/templates/table_view.html:55
 msgid "Delete"
 msgstr "Löschen"
 
@@ -712,23 +758,23 @@ msgstr "Bitte warten Sie, während wir Ihr Rezept übersetzen."
 msgid "Saved!"
 msgstr "Gespeichert!"
 
-#: app/templates/recipe_form.html:3
+#: app/templates/recipe_form.html:2
 msgid "Edit"
 msgstr "Bearbeiten"
 
-#: app/templates/recipe_form.html:3
+#: app/templates/recipe_form.html:2
 msgid "New"
 msgstr "Neu"
 
-#: app/templates/recipe_form.html:3
+#: app/templates/recipe_form.html:2
 msgid "Recipe"
 msgstr "Rezept"
 
-#: app/templates/recipe_form.html:20
+#: app/templates/recipe_form.html:18
 msgid "Translation Preview"
 msgstr "Übersetzungsvorschau"
 
-#: app/templates/recipe_form.html:20
+#: app/templates/recipe_form.html:18
 msgid ""
 "Review the translated content below and make any adjustments before "
 "saving."
@@ -736,127 +782,136 @@ msgstr ""
 "Überprüfen Sie die übersetzte Version unten und nehmen Sie Anpassungen "
 "vor dem Speichern vor."
 
-#: app/templates/recipe_form.html:26
+#: app/templates/recipe_form.html:24
 msgid "Show Original"
 msgstr "Original anzeigen"
 
-#: app/templates/recipe_form.html:34
+#: app/templates/recipe_form.html:32
 msgid "Original Content"
 msgstr "Originalinhalt"
 
-#: app/templates/recipe_form.html:45
+#: app/templates/recipe_form.html:43
 msgid "TITLE:"
 msgstr "TITEL:"
 
-#: app/templates/recipe_form.html:51
+#: app/templates/recipe_form.html:49
 msgid "DESCRIPTION:"
 msgstr "BESCHREIBUNG:"
 
-#: app/templates/recipe_form.html:58
+#: app/templates/recipe_form.html:56
 msgid "INGREDIENTS:"
 msgstr "ZUTATEN:"
 
-#: app/templates/recipe_form.html:73
+#: app/templates/recipe_form.html:71
 msgid "INSTRUCTIONS:"
 msgstr "ANLEITUNG:"
 
-#: app/templates/recipe_form.html:85
+#: app/templates/recipe_form.html:83
 msgid "NOTES:"
 msgstr "NOTIZEN:"
 
-#: app/templates/recipe_form.html:107
+#: app/templates/recipe_form.html:113
+#, fuzzy
+msgid "Recipe from Chat"
+msgstr "Rezept aus dem Chat"
+
+#: app/templates/recipe_form.html:113
+msgid "Review and edit the recipe details from your conversation before saving."
+msgstr "Überprüfen und bearbeiten Sie die Rezeptdetails aus Ihrem Gespräch, bevor Sie sie speichern."
+
+#: app/templates/recipe_form.html:122
 msgid "Create New Recipe"
 msgstr "Neues Rezept erstellen"
 
-#: app/templates/recipe_form.html:118
+#: app/templates/recipe_form.html:135
 msgid "e.g., Pasta with Pumpkin Sauce"
 msgstr "z.B. Pasta mit Kürbissoße"
 
-#: app/templates/recipe_form.html:128
+#: app/templates/recipe_form.html:145
 msgid "A brief description of your recipe..."
 msgstr "Eine kurze Beschreibung Ihres Rezepts..."
 
-#: app/templates/recipe_form.html:151
+#: app/templates/recipe_form.html:169
 msgid "pasta | 500 g tagliatelle"
 msgstr "Nudeln | 500 g Tagliatelle"
 
-#: app/templates/recipe_form.html:151
+#: app/templates/recipe_form.html:169
 msgid "pumpkin | 600 g Hokkaido, cubed"
 msgstr "Kürbis | 600 g Hokkaido, gewürfelt"
 
-#: app/templates/recipe_form.html:151
+#: app/templates/recipe_form.html:169
 msgid "olive oil | 4 tbsp"
 msgstr "Olivenöl | 4 EL"
 
-#: app/templates/recipe_form.html:170 app/templates/recipe_form.html:183
+#: app/templates/recipe_form.html:204 app/templates/recipe_form.html:225
 msgid "Optional"
 msgstr "Optional"
 
-#: app/templates/recipe_form.html:177
+#: app/templates/recipe_form.html:211
 msgid "You can use Hokkaido pumpkin..."
 msgstr "Sie können Hokkaido-Kürbis verwenden..."
 
-#: app/templates/recipe_form.html:177
+#: app/templates/recipe_form.html:211
 msgid "Store leftovers in the fridge..."
 msgstr "Reste im Kühlschrank aufbewahren..."
 
-#: app/templates/recipe_form.html:186
+#: app/templates/recipe_form.html:228
 msgid "Comma-separated:"
 msgstr "Durch Kommas getrennt:"
 
-#: app/templates/recipe_form.html:186
+#: app/templates/recipe_form.html:228
 msgid "vegetarian, pasta, Italian"
 msgstr "vegetarisch, Pasta, italienisch"
 
-#: app/templates/recipe_form.html:190
+#: app/templates/recipe_form.html:233
 msgid "vegetarian, pasta, main course"
 msgstr "vegetarisch, Pasta, Hauptgericht"
 
-#: app/templates/recipe_form.html:196
+#: app/templates/recipe_form.html:239
 msgid "Recipe Image"
 msgstr "Rezeptbild"
 
-#: app/templates/recipe_form.html:209
+#: app/templates/recipe_form.html:252
 msgid "Upload a new image to replace the current one"
 msgstr "Laden Sie ein neues Bild hoch, um das aktuelle zu ersetzen"
 
-#: app/templates/recipe_form.html:229
+#: app/templates/recipe_form.html:272
 msgid "PNG, JPG, GIF, WebP up to 16MB"
 msgstr "PNG, JPG, GIF, WebP bis zu 16MB"
 
-#: app/templates/recipe_form.html:236
+#: app/templates/recipe_form.html:279
 msgid "Preview"
 msgstr "Vorschau"
 
-#: app/templates/recipe_form.html:239
+#: app/templates/recipe_form.html:282
 msgid "Remove preview"
 msgstr "Vorschau entfernen"
 
-#: app/templates/recipe_form.html:271
+#: app/templates/recipe_form.html:314
 msgid "Are you sure you want to delete this image?"
 msgstr "Sind Sie sicher, dass Sie dieses Bild löschen möchten?"
 
-#: app/templates/recipe_form.html:285
+#: app/templates/recipe_form.html:328
 msgid "Image deleted successfully"
 msgstr "Bild erfolgreich gelöscht"
 
-#: app/templates/recipe_form.html:287
+#: app/templates/recipe_form.html:330
 msgid "Error deleting image:"
 msgstr "Fehler beim Löschen des Bildes:"
 
-#: app/templates/recipe_form.html:291
+#: app/templates/recipe_form.html:334
 msgid "Error deleting image"
 msgstr "Fehler beim Löschen des Bildes"
 
-#: app/templates/recipe_form.html:301
+#: app/templates/recipe_form.html:344
 msgid "Update Recipe"
 msgstr "Rezept aktualisieren"
 
-#: app/templates/recipe_form.html:301
+#: app/templates/recipe_form.html:344
 msgid "Create Recipe"
 msgstr "Rezept erstellen"
 
-#: app/templates/recipe_form.html:305 app/templates/table_view.html:266
+#: app/templates/recipe_form.html:348 app/templates/table_view.html:333
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -902,125 +957,123 @@ msgstr ""
 "Geben Sie einen Suchbegriff ein oder klicken Sie auf einen Tag, um "
 "Rezepte zu finden"
 
-#: app/templates/table_view.html:3
+#: app/templates/table_view.html:1
 #, fuzzy
 msgid "Recipe Table"
 msgstr "Rezepttabelle"
 
-#: app/templates/table_view.html:7
+#: app/templates/table_view.html:5
 #, fuzzy
 msgid "Recipe Table View"
 msgstr "Rezepttabellenansicht"
 
-#: app/templates/table_view.html:8
+#: app/templates/table_view.html:7
 msgid "Manage all your recipes in one place"
 msgstr "Verwalten Sie alle Ihre Rezepte an einem Ort"
 
-#: app/templates/table_view.html:21
+#: app/templates/table_view.html:26
 #, fuzzy
 msgid "0 selected"
 msgstr "0 ausgewählt"
 
-#: app/templates/table_view.html:29
+#: app/templates/table_view.html:37
 msgid "Add Tag"
 msgstr "Tag hinzufügen"
 
-#: app/templates/table_view.html:37
+#: app/templates/table_view.html:49
 msgid "Export CSV"
 msgstr "Als CSV exportieren"
 
-#: app/templates/table_view.html:48
+#: app/templates/table_view.html:64
 #, fuzzy
 msgid "+ New Recipe"
 msgstr "+ Neues Rezept"
 
-#: app/templates/table_view.html:52
+#: app/templates/table_view.html:70
 #, fuzzy
 msgid "Export All"
 msgstr "Alle exportieren"
 
-#: app/templates/table_view.html:74
+#: app/templates/table_view.html:88
 #, fuzzy
 msgid "AI Generated"
 msgstr "KI-generiert"
 
-#: app/templates/table_view.html:80
+#: app/templates/table_view.html:94
 #, fuzzy
 msgid "With Images"
 msgstr "Mit Bildern"
 
-#: app/templates/table_view.html:92
+#: app/templates/table_view.html:103
 msgid "Unique Tags"
 msgstr "Eindeutige Tags"
 
-#: app/templates/table_view.html:108
+#: app/templates/table_view.html:121
 msgid "Title"
 msgstr "Titel"
 
-#: app/templates/table_view.html:127
+#: app/templates/table_view.html:144
 msgid "Steps"
 msgstr "Schritte"
 
-#: app/templates/table_view.html:136
+#: app/templates/table_view.html:157
 msgid "Created"
 msgstr "Erstellt"
 
-#: app/templates/table_view.html:143
+#: app/templates/table_view.html:165
 msgid "Actions"
 msgstr "Aktionen"
 
-#: app/templates/table_view.html:255
+#: app/templates/table_view.html:314
 msgid "Add Tag to Selected Recipes"
 msgstr "Tag zu ausgewählten Rezepten hinzufügen"
 
-#: app/templates/table_view.html:258
+#: app/templates/table_view.html:320
 msgid "Enter tag name"
 msgstr "Tag-Namen eingeben"
 
-#: app/templates/table_view.html:262
+#: app/templates/table_view.html:327
 msgid "Apply"
 msgstr "Anwenden"
 
-#: app/templates/table_view.html:281
+#: app/templates/table_view.html:350
 #, fuzzy
 msgid "selected"
 msgstr "ausgewählt"
 
-#: app/templates/table_view.html:318
+#: app/templates/table_view.html:388
 #, fuzzy
 msgid "Please select recipes to delete"
 msgstr "Bitte wählen Sie die zu löschenden Rezepte aus"
 
-#: app/templates/table_view.html:322
-#, fuzzy, python-format
-msgid ""
-"Are you sure you want to delete %(count)d recipe(s)? This cannot be "
-"undone."
+#: app/templates/table_view.html:393
+#, fuzzy, python-brace-format, python-format
+msgid "Are you sure you want to delete {count} recipe(s)? This cannot be undone."
 msgstr ""
 "Sind Sie sicher, dass Sie %(count)d Rezept(e) löschen möchten? Dies kann "
 "nicht rückgängig gemacht werden."
 
-#: app/templates/table_view.html:341 app/templates/table_view.html:387
+#: app/templates/table_view.html:416 app/templates/table_view.html:462
 msgid "Error:"
 msgstr "Fehler:"
 
-#: app/templates/table_view.html:351 app/templates/table_view.html:397
-#: app/templates/table_view.html:412
+#: app/templates/table_view.html:426 app/templates/table_view.html:472
+#: app/templates/table_view.html:487
 #, fuzzy
 msgid "Please select recipes first"
 msgstr "Bitte wählen Sie zuerst Rezepte aus"
 
-#: app/templates/table_view.html:367
+#: app/templates/table_view.html:442
 #, fuzzy
 msgid "Please enter a tag"
 msgstr "Bitte geben Sie einen Tag ein"
 
-#: app/templates/table_view.html:429
-#, fuzzy, python-format
-msgid "Delete recipe \"%(title)s\"?"
+#: app/templates/table_view.html:505
+#, fuzzy, python-brace-format, python-format
+msgid "Delete recipe \"{title}\"?"
 msgstr "Rezepttitel"
 
-#: app/templates/table_view.html:440
+#: app/templates/table_view.html:517
 #, fuzzy
 msgid "Error deleting recipe:"
 msgstr "Fehler beim Löschen des Bildes:"
@@ -1114,6 +1167,24 @@ msgstr "Bereits ein Konto?"
 msgid "Log in"
 msgstr "Anmelden"
 
+#: app/templates/components/chat_window.html:12
+msgid "Cooking Assistant"
+msgstr "Kochassistent"
+
+#: app/templates/components/chat_window.html:17
+msgid "Clear conversation"
+msgstr "Konversation löschen"
+
+#: app/templates/components/chat_window.html:61
+#, fuzzy
+msgid "Ask about recipes..."
+msgstr "Fragen Sie nach Rezepten..."
+
+#: app/templates/components/chat_window.html:71
+#, fuzzy
+msgid "Send"
+msgstr "Senden"
+
 #: app/templates/components/recipe_card.html:48
 msgid "View Recipe"
 msgstr "Rezept ansehen"
@@ -1137,30 +1208,31 @@ msgstr "%(count)d Rezept(e) gefunden"
 msgid "No tags yet"
 msgstr "Noch keine Tags"
 
-#: app/utils/ai_recipe_generator.py:32
-msgid "COOK_AGENT_KEY and AGENT_ID must be set in environment"
+#: app/utils/ai_recipe_generator.py:77
+#, fuzzy
+msgid "COOK_AGENT_KEY must be set in environment"
 msgstr "COOK_AGENT_KEY und AGENT_ID müssen in der Umgebung gesetzt sein"
 
-#: app/utils/ai_recipe_generator.py:68
+#: app/utils/ai_recipe_generator.py:122
 #, python-format
 msgid "Failed to generate dish ideas: %(error)s"
 msgstr "Fehler beim Generieren von Gerichtideen: %(error)s"
 
-#: app/utils/ai_recipe_generator.py:118
+#: app/utils/ai_recipe_generator.py:185
 #, python-format
 msgid "Missing required field: %(field)s"
 msgstr "Erforderliches Feld fehlt: %(field)s"
 
-#: app/utils/ai_recipe_generator.py:124
+#: app/utils/ai_recipe_generator.py:193
 #, python-format
 msgid "Failed to generate recipe: %(error)s"
 msgstr "Fehler beim Generieren des Rezepts: %(error)s"
 
-#: app/utils/ai_recipe_generator.py:191
+#: app/utils/ai_recipe_generator.py:263
 msgid "Untitled Recipe"
 msgstr "Unbenanntes Rezept"
 
-#: app/utils/ai_recipe_generator.py:197
+#: app/utils/ai_recipe_generator.py:269
 msgid "AI-generated"
 msgstr "KI-generiert"
 

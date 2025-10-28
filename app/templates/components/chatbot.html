@@ -1,33 +1,38 @@
 <!-- Chat bubble toggle button -->
 <div id="chat-container" class="fixed bottom-4 right-4 z-50">
-    <!-- Minimized: Just the bubble -->
-    <button id="chat-toggle" 
-        onclick="toggleChat()"
-            class="bg-orange-600 text-white rounded-full w-16 h-16 shadow-lg hover:bg-orange-700 transition-all flex items-center justify-center"
-            hx-get="{{ url_for('chat.toggle') }}">
-        💬
-        <span id="unread-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-xs rounded-full w-5 h-5 flex items-center justify-center">
-            3
-        </span>
-    </button>
-    
-    <!-- Chat window (hidden by default) -->
-    <div id="chat-window" class="hidden">
-        <!-- Will be loaded via HTMX -->
-    </div>
+  <!-- Minimized: Just the bubble -->
+  <button
+    id="chat-toggle"
+    onclick="toggleChat()"
+    class="bg-orange-600 text-white rounded-full w-16 h-16 shadow-lg hover:bg-orange-700 transition-all flex items-center justify-center"
+  >
+    <!-- toggleChat defined in base.html -->
+    💬
+    <span
+      id="unread-badge"
+      class="hidden absolute -top-1 -right-1 bg-red-500 text-xs rounded-full w-5 h-5 flex items-center justify-center"
+    >
+      3
+    </span>
+  </button>
+
+  <!-- Chat window (hidden by default) -->
+  <div id="chat-window" class="hidden">
+    <!-- Will be loaded via HTMX -->
+  </div>
 </div>
 <script>
-function toggleChat() {
-    const chatWindow = document.getElementById('chat-window');
-    if (chatWindow.classList.contains('hidden')) {
-        // Load chat window
-        fetch('{{ url_for("chat.toggle") }}')
-            .then(response => response.text())
-            .then(html => {
-                chatWindow.outerHTML = html;
-            });
-    } else {
-        chatWindow.outerHTML = '<div id="chat-window" class="hidden"></div>';
-    }
-}
+  //   function toggleChat() {
+  //     const chatWindow = document.getElementById("chat-window");
+  //     if (chatWindow.classList.contains("hidden")) {
+  //       // Load chat window
+  //       fetch('{{ url_for("chat.toggle") }}')
+  //         .then((response) => response.text())
+  //         .then((html) => {
+  //           chatWindow.outerHTML = html;
+  //         });
+  //     } else {
+  //       chatWindow.outerHTML = '<div id="chat-window" class="hidden"></div>';
+  //     }
+  //   }
 </script>
