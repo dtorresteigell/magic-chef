@@ -1,4 +1,4 @@
-name: Build and Push to OCIR
+name: Build, Push to OCIR and Deploy
 
 on:
   push:
@@ -29,3 +29,14 @@ jobs:
           REGISTRY: ${{ secrets.OCIR_REGION }}.ocir.io
         run: |
           docker push ${REGISTRY}/${{ secrets.OCIR_REPO }}:latest
+
+      - name: Deploy to Oracle VM
+        uses: appleboy/ssh-action@v0.1.9
+        with:
+          host: ${{ secrets.OCI_VM_IP }}
+          username: ${{ secrets.OCI_VM_USER }}
+          key: ${{ secrets.OCI_VM_SSH_KEY }}
+          script: |
+            echo "Deploying latest Docker image..."
+            chmod +x ~/deploy-container.sh
+            ~/deploy-container.sh
