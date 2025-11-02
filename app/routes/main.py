@@ -1,5 +1,6 @@
 from flask import (
     Blueprint,
+    send_from_directory,
     render_template,
     request,
     redirect,
@@ -28,6 +29,11 @@ import json
 from urllib.parse import unquote
 
 bp = Blueprint("main", __name__)
+
+
+@bp.route("/favicon.ico")
+def favicon():
+    return send_from_directory(current_app.static_folder, "favicon.ico")
 
 
 @bp.route("/")

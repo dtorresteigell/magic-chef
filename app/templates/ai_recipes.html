@@ -15,11 +15,31 @@ _('Recipe App') }}{% endblock %} {% block content %}
   <div class="lg:col-span-1">
     <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
       <h2 class="text-xl font-semibold text-gray-900 mb-4">
-        {{ _('Ingredients') }}
+        {{ _('Dish Idea Generator') }}
       </h2>
 
-      <!-- Ingredients Input -->
-      <div class="mb-4">
+      <!-- Mode Buttons -->
+      <div class="flex mb-4 space-x-2">
+        <button
+          id="mode-ingredients"
+          type="button"
+          class="flex-1 bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700 font-medium"
+          onclick="switchMode('ingredients')"
+        >
+          {{ _('Generate by Ingredients') }}
+        </button>
+        <button
+          id="mode-description"
+          type="button"
+          class="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 font-medium"
+          onclick="switchMode('description')"
+        >
+          {{ _('Generate by Description') }}
+        </button>
+      </div>
+
+      <!-- Ingredients Input Section -->
+      <div id="ingredients-section">
         <label
           for="ingredients"
           class="block text-sm font-medium text-gray-700 mb-2"
@@ -35,10 +55,112 @@ _('Recipe App') }}{% endblock %} {% block content %}
         <p class="text-xs text-gray-500 mt-1">
           {{ _('Separate ingredients with commas') }}
         </p>
+
+        <!-- Use Only Checkbox -->
+        <div class="mt-4">
+          <label class="flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              id="use-only"
+              class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+            />
+            <span class="ml-2 text-sm text-gray-700">
+              {{ _('Use') }} <strong>{{ _('only') }}</strong> {{ _('these
+              ingredients') }}
+              <span class="block text-xs text-gray-500"
+                >+ {{ _('common kitchen staples') }}</span
+              >
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Description Input Section (hidden by default) -->
+      <div id="description-section" class="hidden">
+        <label
+          for="description"
+          class="block text-sm font-medium text-gray-700 mb-2"
+        >
+          {{ _('Describe what you want to cook') }}
+        </label>
+        <textarea
+          id="description"
+          rows="5"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+          placeholder="{{ _('e.g. a light summer dinner with tomatoes and herbs') }}"
+        ></textarea>
+      </div>
+
+      <!-- Options and Restrictions -->
+      <div class="mt-6 pt-6 border-t">
+        <h3 class="text-sm font-medium text-gray-700 mb-2">
+          <strong>{{ _('Options and Restrictions') }}</strong>
+        </h3>
+
+        <!-- Dietary -->
+        <div class="mb-4">
+          <span class="block text-sm font-medium text-gray-700 mb-1"
+            >{{ _('Dietary') }}</span
+          >
+          <div class="flex flex-wrap gap-3 text-sm">
+            <label
+              ><input type="checkbox" id="opt-vegetarian" /> 🌱 {{
+              _('Vegetarian') }}</label
+            >
+            <label
+              ><input type="checkbox" id="opt-vegan" /> 🥦 {{ _('Vegan')
+              }}</label
+            >
+            <label
+              ><input type="checkbox" id="opt-seasonal" /> 🍂 {{ _('Seasonal')
+              }}</label
+            >
+            <label class="flex items-center gap-2">
+              <input type="checkbox" id="opt-allergies" /> ⚠️ {{ _('Allergies:')
+              }}
+              <input
+                type="text"
+                id="opt-allergies-text"
+                class="border rounded px-2 py-1 text-xs"
+                placeholder="{{ _('e.g. nuts, dairy') }}"
+              />
+            </label>
+          </div>
+        </div>
+
+        <!-- Difficulty -->
+        <div class="mb-4">
+          <span class="block text-sm font-medium text-gray-700 mb-1">
+            {{ _('Difficulty') }}</span
+          >
+          <div class="flex flex-wrap gap-3 text-sm">
+            <label
+              ><input
+                type="radio"
+                name="difficulty"
+                value="indifferent"
+                checked
+              />
+              {{ _('Indifferent') }}</label
+            >
+            <label
+              ><input type="radio" name="difficulty" value="easy" /> {{
+              _('Easy') }}</label
+            >
+            <label
+              ><input type="radio" name="difficulty" value="moderate" /> {{
+              _('Moderate') }}</label
+            >
+            <label
+              ><input type="radio" name="difficulty" value="difficult" /> {{
+              _('Difficult') }}</label
+            >
+          </div>
+        </div>
       </div>
 
       <!-- Number of Ideas Slider -->
-      <div class="mb-4">
+      <div class="mt-6 pt-6 border-t">
         <label
           for="num-ideas"
           class="block text-sm font-medium text-gray-700 mb-2"
@@ -55,24 +177,6 @@ _('Recipe App') }}{% endblock %} {% block content %}
           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-600"
           oninput="document.getElementById('num-ideas-value').textContent = this.value"
         />
-      </div>
-
-      <!-- Use Only Checkbox -->
-      <div class="mb-6">
-        <label class="flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            id="use-only"
-            class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-          />
-          <span class="ml-2 text-sm text-gray-700">
-            {{ _('Use') }} <strong>{{ _('only') }}</strong> {{ _('these
-            ingredients') }}
-            <span class="block text-xs text-gray-500"
-              >+ {{ _('common kitchen staples') }}</span
-            >
-          </span>
-        </label>
       </div>
 
       <!-- Generate Button -->
@@ -132,21 +236,40 @@ _('Recipe App') }}{% endblock %} {% block content %}
           <button
             onclick="loadHistoryData(this)"
             data-entry='{{ {
-      "ingredients": entry.ingredients,
-      "use_only": entry.use_only,
-      "num_ideas": entry.num_ideas,
-      "dishes": entry.dishes
-    } | tojson | safe }}'
+              "mode": entry.mode or "ingredients",
+              "ingredients": entry.ingredients or [],
+              "description": entry.description or "",
+              "use_only": entry.use_only or false,
+              "num_ideas": entry.num_ideas or 10,
+              "vegetarian": entry.vegetarian or false,
+              "vegan": entry.vegan or false,
+              "seasonal": entry.seasonal or false,
+              "allergies": entry.allergies or "",
+              "difficulty": entry.difficulty or "indifferent",
+              "dishes": entry.dishes or []
+            } | tojson | safe }}'
             class="w-full text-left text-sm bg-gray-50 hover:bg-gray-100 p-2 rounded"
           >
-            <div class="text-gray-700 font-medium truncate">
-              {{ entry.ingredients|join(', ') }}
+            <div class="text-gray-700 font-medium line-clamp-2">
+              {{ entry.mode|capitalize }}: {% if entry.mode == 'ingredients' %}
+              {{ entry.ingredients|join(', ') }} {% else %} {{ entry.description
+              }} {% endif %}
             </div>
-            <div class="text-xs text-gray-500">
-              {{ entry.dishes|length }} ideas
+            <div class="text-xs text-gray-500 flex items-center gap-2">
+              <div class="flex items-center gap-2">
+                <span>{{ entry.dishes|length }} ideas</span>
+                {% if entry.vegetarian %}<span>🌱</span>{% endif %} {% if
+                entry.vegan %}<span>🥦</span>{% endif %} {% if entry.seasonal
+                %}<span>🍂</span>{% endif %} {% if entry.allergies
+                %}<span>⚠️</span>{% endif %}
+              </div>
+              {% if entry.difficulty != 'indifferent' %}
+              <div class="ml-auto flex items-center gap-2">
+                <span>💪 {{ entry.difficulty|capitalize }}</span>
+              </div>
+              {% endif %}
             </div>
           </button>
-
           {% endfor %}
         </div>
       </div>
@@ -394,31 +517,84 @@ _('Recipe App') }}{% endblock %} {% block content %}
   let currentUseOnly = false;
   let selectedDishTitle = null;
   let currentRecipeData = null;
+  let currentMode = "ingredients";
+
+  function switchMode(mode) {
+    currentMode = mode;
+
+    const btnIng = document.getElementById("mode-ingredients");
+    const btnDesc = document.getElementById("mode-description");
+
+    if (mode === "ingredients") {
+      btnIng.className =
+        "flex-1 bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700 font-medium";
+      btnDesc.className =
+        "flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 font-medium";
+    } else {
+      btnIng.className =
+        "flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 font-medium";
+      btnDesc.className =
+        "flex-1 bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700 font-medium";
+    }
+
+    // Show/hide sections
+    document
+      .getElementById("ingredients-section")
+      .classList.toggle("hidden", mode !== "ingredients");
+    document
+      .getElementById("description-section")
+      .classList.toggle("hidden", mode !== "description");
+  }
+
+  function getCurrentMode() {
+    return currentMode;
+  }
 
   function generateDishIdeas() {
     const ingredientsText = document.getElementById("ingredients").value.trim();
+    const descriptionText = document.getElementById("description").value.trim();
     const numIdeas = parseInt(document.getElementById("num-ideas").value);
     const useOnly = document.getElementById("use-only").checked;
 
-    if (!ingredientsText) {
+    // Options
+    const vegetarian = document.getElementById("opt-vegetarian").checked;
+    const vegan = document.getElementById("opt-vegan").checked;
+    const seasonal = document.getElementById("opt-seasonal").checked;
+    const allergies = document
+      .getElementById("opt-allergies-text")
+      .value.trim();
+    const difficulty =
+      document.querySelector('input[name="difficulty"]:checked')?.value ||
+      "indifferent";
+
+    // Validate input based on mode
+    if (currentMode === "ingredients" && !ingredientsText) {
       alert("Please enter at least one ingredient");
+      return;
+    }
+    if (currentMode === "description" && !descriptionText) {
+      alert("Please enter a description");
       return;
     }
 
     // Show loading
     document.getElementById("generate-ideas-btn").disabled = true;
     document.getElementById("loading-ideas").classList.remove("hidden");
-
     // Make API call
     fetch('{{ url_for("ai_recipes.generate_ideas") }}', {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        mode: currentMode,
         ingredients: ingredientsText,
+        description: descriptionText,
         num_ideas: numIdeas,
         use_only: useOnly,
+        vegetarian,
+        vegan,
+        seasonal,
+        allergies,
+        difficulty,
       }),
     })
       .then((response) => response.json())
@@ -431,9 +607,7 @@ _('Recipe App') }}{% endblock %} {% block content %}
           alert("Error: " + data.error);
         }
       })
-      .catch((error) => {
-        alert("Network error: " + error);
-      })
+      .catch((error) => alert("Network error: " + error))
       .finally(() => {
         document.getElementById("generate-ideas-btn").disabled = false;
         document.getElementById("loading-ideas").classList.add("hidden");
@@ -496,33 +670,48 @@ _('Recipe App') }}{% endblock %} {% block content %}
     document.getElementById("loading-recipe").classList.remove("hidden");
     document.getElementById("generate-recipe-btn").disabled = true;
 
-    // Make API call
+    // Gather extra options
+    const descriptionText =
+      document.getElementById("description")?.value.trim() || "";
+    const useOnly = document.getElementById("use-only")?.checked || false;
+    const vegetarian =
+      document.getElementById("opt-vegetarian")?.checked || false;
+    const vegan = document.getElementById("opt-vegan")?.checked || false;
+    const seasonal = document.getElementById("opt-seasonal")?.checked || false;
+    const allergies =
+      document.getElementById("opt-allergies-text")?.value.trim() || "";
+    const difficulty =
+      document.querySelector('input[name="difficulty"]:checked')?.value ||
+      "indifferent";
+
     fetch('{{ url_for("ai_recipes.generate_recipe") }}', {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: selectedDishTitle,
+        mode: currentMode,
         ingredients: currentIngredients,
-        use_only: currentUseOnly,
+        description: descriptionText,
+        use_only: useOnly,
+        vegetarian,
+        vegan,
+        seasonal,
+        allergies,
+        difficulty,
       }),
     })
-      .then((response) => response.json())
+      .then((res) => res.json())
       .then((data) => {
         if (data.success) {
           currentRecipeData = data.recipe;
           displayRecipeForm(data.recipe);
         } else {
           alert("Error: " + data.error);
-          document.getElementById("generate-recipe-btn").disabled = false;
         }
       })
-      .catch((error) => {
-        alert("Network error: " + error);
-        document.getElementById("generate-recipe-btn").disabled = false;
-      })
+      .catch((err) => alert("Network error: " + err))
       .finally(() => {
+        document.getElementById("generate-recipe-btn").disabled = false;
         document.getElementById("loading-recipe").classList.add("hidden");
       });
   }
@@ -644,29 +833,64 @@ _('Recipe App') }}{% endblock %} {% block content %}
     currentRecipeData = null;
   }
 
-  function loadHistory(ingredients, useOnly, numIdeas, dishes) {
-    // Fill form with history
-    document.getElementById("ingredients").value = ingredients.join(", ");
-    document.getElementById("use-only").checked = useOnly;
-    document.getElementById("num-ideas").value = numIdeas;
-    document.getElementById("num-ideas-value").textContent = numIdeas;
-
-    // Display the dishes
-    currentIngredients = ingredients;
-    currentUseOnly = useOnly;
-    displayDishIdeas(dishes);
-  }
-
   function loadHistoryData(button) {
     try {
-      const data = JSON.parse(button.dataset.entry);
+      const entry = JSON.parse(button.dataset.entry);
 
-      loadHistory(data.ingredients, data.use_only, data.num_ideas, data.dishes);
-    } catch (err) {
-      console.error("Failed to parse history data:", err);
-      alert("Error loading history entry. Check console for details.");
+      // 1. Set mode
+      switchMode(entry.mode || "ingredients");
+
+      // 2. Set main input
+      if (entry.mode === "ingredients") {
+        document.getElementById("ingredients").value = entry.ingredients
+          ? entry.ingredients.join(", ")
+          : "";
+        document.getElementById("use-only").checked = entry.use_only || false;
+      } else {
+        document.getElementById("description").value = entry.description || "";
+      }
+
+      // 3. Restore Options and Restrictions
+      document.getElementById("opt-vegetarian").checked =
+        entry.vegetarian || false;
+      document.getElementById("opt-vegan").checked = entry.vegan || false;
+      document.getElementById("opt-seasonal").checked = entry.seasonal || false;
+
+      const allergiesInput = document.getElementById("opt-allergies-text");
+      if (entry.allergies && entry.allergies.length > 0) {
+        document.getElementById("opt-allergies").checked = true;
+        allergiesInput.value = entry.allergies;
+        allergiesInput.disabled = false;
+      } else {
+        document.getElementById("opt-allergies").checked = false;
+        allergiesInput.value = "";
+        allergiesInput.disabled = true;
+      }
+
+      // 4. Difficulty
+      const difficultyRadios = document.querySelectorAll(
+        'input[name="difficulty"]'
+      );
+      difficultyRadios.forEach((radio) => {
+        radio.checked = radio.value === (entry.difficulty || "indifferent");
+      });
+
+      // 5. Number of ideas
+      document.getElementById("num-ideas").value = entry.num_ideas || 10;
+      document.getElementById("num-ideas-value").textContent =
+        entry.num_ideas || 10;
+    } catch (error) {
+      console.error("Failed to load history entry:", error);
+      alert("Unable to load this history entry. It may be corrupted.");
     }
   }
+
+  // Enable/disable allergies textbox based on checkbox
+  document
+    .getElementById("opt-allergies")
+    .addEventListener("change", function () {
+      document.getElementById("opt-allergies-text").disabled = !this.checked;
+    });
 
   function clearHistory() {
     if (confirm("Clear all search history?")) {

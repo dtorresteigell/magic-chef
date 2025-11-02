@@ -7,6 +7,7 @@ from flask import (
     url_for,
     flash,
     session,
+    current_app,
 )
 from app import db
 from app.models import Recipe
@@ -15,6 +16,7 @@ from app.utils.ai_recipe_generator import (
     MistralRecipeGenerator,
     convert_ai_recipe_to_model_format,
 )
+from app.utils.geo import get_user_country
 
 bp = Blueprint("ai_recipes", __name__, url_prefix="/ai")
 
@@ -32,37 +34,73 @@ def generate_ideas():
     """AJAX endpoint to generate dish ideas"""
     try:
         # Get form data
+        mode = request.json.get("mode", "ingredients")
         ingredients_text = request.json.get("ingredients", "")
-        num_ideas = int(request.json.get("num_ideas", 10))
         use_only = request.json.get("use_only", False)
+        description = request.json.get("description", "")
+        vegetarian = request.json.get("vegetarian", False)
+        vegan = request.json.get("vegan", False)
+        seasonal = request.json.get("seasonal", False)
+        allergies = request.json.get("allergies", "")
+        difficulty = request.json.get("difficulty", "indifferent")
+        user_location, user_latitude = get_user_country()
+        num_ideas = int(request.json.get("num_ideas", 10))
 
-        # Parse ingredients
-        ingredients_list = [
-            ing.strip() for ing in ingredients_text.split(",") if ing.strip()
-        ]
-
-        if not ingredients_list:
-            return (
-                jsonify(
-                    {
-                        "success": False,
-                        "error": _("Please enter at least one ingredient"),
-                    }
-                ),
-                400,
-            )
+        if mode == "ingredients":
+            ingredients_list = [
+                ing.strip() for ing in ingredients_text.split(",") if ing.strip()
+            ]
+            if not ingredients_list:
+                return (
+                    jsonify(
+                        {
+                            "success": False,
+                            "error": _("Please enter at least one ingredient"),
+                        }
+                    ),
+                    400,
+                )
+        else:
+            ingredients_list = []  # empty for description mode
+            if not description.strip():
+                return (
+                    jsonify(
+                        {
+                            "success": False,
+                            "error": _("Please enter a description"),
+                        }
+                    ),
+                    400,
+                )
 
         # Generate ideas
         generator = MistralRecipeGenerator()
         dish_ideas = generator.generate_dish_ideas(
-            ingredients_list, num_ideas, use_only
+            mode=mode,
+            ingredients_list=ingredients_list if mode == "ingredients" else [],
+            description=description if mode == "description" else "",
+            num_ideas=num_ideas,
+            use_only=use_only,
+            vegetarian=vegetarian,
+            vegan=vegan,
+            seasonal=seasonal,
+            allergies=allergies,
+            difficulty=difficulty,
+            user_location=user_location,
         )
 
         # Store in session for history
         history_entry = {
+            "mode": mode,
             "ingredients": ingredients_list,
+            "description": description,
             "use_only": use_only,
             "num_ideas": num_ideas,
+            "vegetarian": vegetarian,
+            "vegan": vegan,
+            "seasonal": seasonal,
+            "allergies": allergies,
+            "difficulty": difficulty,
             "dishes": dish_ideas,
         }
 
@@ -76,8 +114,15 @@ def generate_ideas():
             {
                 "success": True,
                 "dish_ideas": dish_ideas,
+                "mode": mode,
                 "ingredients": ingredients_list,
+                "description": description,
                 "use_only": use_only,
+                "vegetarian": vegetarian,
+                "vegan": vegan,
+                "seasonal": seasonal,
+                "allergies": allergies,
+                "difficulty": difficulty,
             }
         )
 
@@ -89,29 +134,69 @@ def generate_ideas():
 def generate_recipe():
     """AJAX endpoint to generate a full recipe"""
     try:
-        # Get form data
-        title = request.json.get("title", "")
-        ingredients_list = request.json.get("ingredients", [])
-        use_only = request.json.get("use_only", False)
+        data = request.json
 
+        title = data.get("title", "")
+        mode = data.get("mode", "ingredients")
+        ingredients_list = data.get("ingredients", [])
+        description = data.get("description", "")
+        use_only = data.get("use_only", False)
+        vegetarian = data.get("vegetarian", False)
+        vegan = data.get("vegan", False)
+        seasonal = data.get("seasonal", False)
+        allergies = data.get("allergies", "")
+        difficulty = data.get("difficulty", "indifferent")
+
+        # Validate required inputs
         if not title:
             return (
                 jsonify({"success": False, "error": _("Dish title is required")}),
                 400,
             )
 
-        if not ingredients_list:
+        if mode == "ingredients" and not ingredients_list:
             return (
                 jsonify({"success": False, "error": _("Ingredients list is required")}),
                 400,
             )
 
-        # Generate recipe
-        generator = MistralRecipeGenerator()
-        ai_recipe = generator.generate_recipe(title, ingredients_list, use_only)
+        if mode == "description" and not description:
+            return (
+                jsonify({"success": False, "error": _("Description is required")}),
+                400,
+            )
 
-        # Convert to our format
-        recipe_data = convert_ai_recipe_to_model_format(ai_recipe)
+        user_location, user_latitude = get_user_country()
+
+        generator = MistralRecipeGenerator()
+        ai_recipe = generator.generate_recipe(
+            title=title,
+            ingredients_list=ingredients_list,
+            use_only=use_only,
+            mode=mode,
+            description=description,
+            vegetarian=vegetarian,
+            vegan=vegan,
+            seasonal=seasonal,
+            allergies=allergies,
+            difficulty=difficulty,
+            user_location=user_location,
+        )
+
+        recipe_data = convert_ai_recipe_to_model_format(
+            ai_recipe,
+            title=title,
+            ingredients_list=ingredients_list,
+            use_only=use_only,
+            mode=mode,
+            description=description,
+            vegetarian=vegetarian,
+            vegan=vegan,
+            seasonal=seasonal,
+            allergies=allergies,
+            difficulty=difficulty,
+            user_latitude=user_latitude,
+        )
 
         return jsonify({"success": True, "recipe": recipe_data})
 

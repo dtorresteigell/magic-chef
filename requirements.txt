@@ -51,3 +51,4 @@ alembic
 Authlib
 Flask-Uploads
 Flask-Images
+pycountry
