@@ -1,0 +1,62 @@
+/* RESULT ANIMATIONS */
+.results-enter {
+  transform: translateY(12px);
+  opacity: 0;
+  transition: transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 320ms ease;
+}
+.results-enter.results-enter-active {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Slide-in from right on larger screens */
+.results-slide-in {
+  transform: translateX(12px);
+  opacity: 0;
+  transition: transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 320ms ease;
+}
+.results-slide-in.active {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* Loading spinner (inline) */
+.spinner {
+  border: 2px solid transparent;
+  border-top-color: white;
+  border-right-color: rgba(255, 255, 255, 0.6);
+  border-radius: 9999px;
+  width: 1rem;
+  height: 1rem;
+  animation: spin 0.9s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Buttons stacking: on small screens stack vertically; on lg keep side-by-side */
+.actions-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-direction: column; /* mobile-first stacks */
+}
+/* Make action buttons stack vertically on small screens */
+@media (max-width: 639px) {
+  .actions-row {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .actions-row > * {
+    width: 100%;
+  }
+}
+
+/* Make sure dish list scroll area is friendly on touch */
+#dish-ideas-list {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}

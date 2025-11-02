@@ -26,13 +26,13 @@
       <img
         src="{{ url_for('static', filename='images/recipes/thumbnails/thumb_' + recipe.image_filename) }}"
         alt="{{ recipe.title }}"
-        class="w-full h-48 object-cover"
+        class="w-full aspect-[2/1] object-cover"
         loading="lazy"
         onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/recipes/' + recipe.image_filename) }}';"
       />
       {% else %}
       <div
-        class="w-full h-48 bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center"
+        class="w-full aspect-[2/1] bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center"
       >
         <span class="text-6xl">🍽️</span>
       </div>

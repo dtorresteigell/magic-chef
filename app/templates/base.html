@@ -42,8 +42,26 @@
       href="{{ url_for('static', filename='css/dark-mode.css') }}"
     />
 
+    <!-- Mobile responsiveness Styles -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/mobile-responsive.css') }}"
+    />
+
     <!-- Custom styles -->
     <style>
+      /* Responsive images */
+      img {
+        width: 100%;
+        height: auto;
+        border-radius: 0.5rem;
+      }
+      @media (min-width: 640px) {
+        img {
+          border-radius: 0.75rem;
+        }
+      }
+
       [x-cloak] {
         display: none !important;
       }
@@ -101,29 +119,39 @@
   <body
     class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen"
   >
-    <!-- <body class="bg-gray-50 min-h-screen"> -->
     <!-- Navigation -->
-    <nav class="bg-white shadow-md">
+    <nav class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <!-- Left section -->
-          <div class="flex items-center">
-            <a
-              href="{{ url_for('main.index') }}"
-              class="text-2xl font-bold text-orange-600"
-            >
-              🍳 {{ _('Recipe App') }}
-            </a>
+        <div class="flex justify-between h-16 items-center">
+          <!-- Left: brand -->
+          <a
+            href="{{ url_for('main.index') }}"
+            class="text-2xl font-bold text-orange-600 flex items-center gap-2"
+          >
+            🍳 {{ _('Recipe App') }}
+          </a>
 
-            <!-- For anonymous users only -->
-            <!-- {% if not current_user.is_authenticated %}
-                    <div class="language-switcher">
-                        <a href="{{ url_for('main.set_language', language='en') }}">English</a>
-                        <a href="{{ url_for('main.set_language', language='de') }}">Deutsch</a>
-                        <a href="{{ url_for('main.set_language', language='es') }}">Español</a>
-                    </div>
-                    {% endif %} -->
-          </div>
+          <!-- Mobile menu button -->
+          <button
+            id="mobile-menu-button"
+            class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none sm:hidden"
+            aria-controls="mobile-menu"
+            aria-expanded="false"
+          >
+            <svg
+              class="h-6 w-6"
+              stroke="currentColor"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
           <div class="flex items-center">
             <button
               id="theme-toggle"
@@ -141,38 +169,33 @@
             </button>
           </div>
 
-          <!-- Right section -->
-          <div class="flex items-center space-x-4 relative">
-            <!-- Regular links -->
+          <!-- Desktop menu -->
+          <div class="hidden sm:flex sm:items-center sm:space-x-4">
             <a
               href="{{ url_for('main.index') }}"
-              class="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium"
+              class="text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium"
+              >{{ _('Home') }}</a
             >
-              {{ _('Home') }}
-            </a>
             <a
               href="{{ url_for('table_view.index') }}"
-              class="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium"
+              class="text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium"
+              >📊 {{ _('Table View') }}</a
             >
-              📊 {{ _('Table View') }}
-            </a>
             <a
               href="{{ url_for('search.search') }}"
-              class="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium"
+              class="text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium"
+              >🔎 {{ _('Search') }}</a
             >
-              🔎 {{ _('Search') }}
-            </a>
             <a
               href="{{ url_for('pdf.select_recipes') }}"
-              class="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium"
+              class="text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium"
+              >📄 {{ _('Create Cookbook') }}</a
             >
-              📄 {{ _('Create Cookbook') }}
-            </a>
 
-            <!-- ✨ AI Tools dropdown -->
+            <!-- Dropdown: AI Tools -->
             <div class="relative group">
               <button
-                class="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium inline-flex items-center"
+                class="text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium inline-flex items-center"
               >
                 ✨ {{ _('AI Tools') }}
                 <svg
@@ -190,70 +213,101 @@
                 </svg>
               </button>
               <div
-                class="absolute hidden group-hover:block bg-white shadow-lg rounded-md py-1 w-48 right-0 z-50"
+                class="absolute hidden group-hover:block bg-white dark:bg-gray-800 shadow-lg rounded-md py-1 w-48 right-0 z-50"
               >
                 <a
                   href="{{ url_for('ai_recipes.index') }}"
-                  class="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 text-sm"
+                  class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-orange-50 hover:text-orange-600 text-sm"
+                  >🤖 {{ _('Generate Recipes') }}</a
                 >
-                  🤖 {{ _('Generate Recipes') }}
-                </a>
                 <a
                   href="{{ url_for('digitaliser.index') }}"
-                  class="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 text-sm"
+                  class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-orange-50 hover:text-orange-600 text-sm"
+                  >📸 {{ _('Digitaliser') }}</a
                 >
-                  📸 {{ _('Digitaliser') }}
-                </a>
               </div>
             </div>
 
             {% if current_user.is_authenticated %}
-            <!-- 👤 User menu -->
+            <!-- User menu -->
             <div class="relative group">
               <button
                 class="flex items-center justify-center w-9 h-9 rounded-full bg-orange-500 text-white font-semibold focus:outline-none"
               >
-                {% if current_user.first_name %} {{
-                current_user.first_name[0]|upper }} {% else %} {{
-                current_user.username[0]|upper }} {% endif %}
+                {% if current_user.first_name %}{{
+                current_user.first_name[0]|upper }}{% else %}{{
+                current_user.username[0]|upper }}{% endif %}
               </button>
               <div
-                class="absolute hidden group-hover:block bg-white shadow-lg rounded-md py-1 w-48 right-0 mt-1 z-50"
+                class="absolute hidden group-hover:block bg-white dark:bg-gray-800 shadow-lg rounded-md py-1 w-48 right-0 mt-1 z-50"
               >
                 <a
                   href="{{ url_for('main.recipe_new') }}"
-                  class="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 text-sm"
+                  class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-orange-50 hover:text-orange-600 text-sm"
+                  >➕ {{ _('New Recipe') }}</a
                 >
-                  ➕ {{ _('New Recipe') }}
-                </a>
                 <a
                   href="{{ url_for('main.settings') }}"
-                  class="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 text-sm"
+                  class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-orange-50 hover:text-orange-600 text-sm"
+                  >⚙️ {{ _('Settings') }}</a
                 >
-                  ⚙️ {{ _('Settings') }}
-                </a>
                 <div class="border-t my-1"></div>
                 <a
                   href="{{ url_for('auth.logout') }}"
                   class="block px-4 py-2 text-red-600 hover:bg-orange-50 hover:text-red-700 text-sm"
+                  >🚪 {{ _('Logout') }}</a
                 >
-                  🚪 {{ _('Logout') }}
-                </a>
               </div>
             </div>
             {% else %}
-            <!-- If not logged in -->
             <a
               href="{{ url_for('auth.login') }}"
               class="bg-orange-600 text-white hover:bg-orange-700 px-4 py-2 rounded-md text-sm font-medium"
+              >{{ _('Login') }}</a
             >
-              {{ _('Login') }}
-            </a>
             {% endif %}
           </div>
         </div>
       </div>
+
+      <!-- Mobile menu -->
+      <div
+        id="mobile-menu"
+        class="sm:hidden hidden bg-white dark:bg-gray-800 px-2 pt-2 pb-3 space-y-1"
+      >
+        <a
+          href="{{ url_for('main.index') }}"
+          class="block text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-base font-medium"
+          >{{ _('Home') }}</a
+        >
+        <a
+          href="{{ url_for('table_view.index') }}"
+          class="block text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-base font-medium"
+          >📊 {{ _('Table View') }}</a
+        >
+        <a
+          href="{{ url_for('search.search') }}"
+          class="block text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-base font-medium"
+          >🔎 {{ _('Search') }}</a
+        >
+        <a
+          href="{{ url_for('pdf.select_recipes') }}"
+          class="block text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-base font-medium"
+          >📄 {{ _('Create Cookbook') }}</a
+        >
+        <a
+          href="{{ url_for('ai_recipes.index') }}"
+          class="block text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-base font-medium"
+          >🤖 {{ _('Generate Recipes') }}</a
+        >
+        <a
+          href="{{ url_for('digitaliser.index') }}"
+          class="block text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-base font-medium"
+          >📸 {{ _('Digitaliser') }}</a
+        >
+      </div>
     </nav>
+    <!-- End Navigation -->
 
     <!-- Flash Messages -->
     <div id="flash-messages" hx-swap-oob="true">
@@ -277,152 +331,143 @@
         </p>
       </div>
     </footer>
+
+    <!-- ✅ Global Scripts -->
     <script>
+      // === DARK MODE TOGGLE ===
       function toggleTheme() {
-        console.log("Toggle clicked");
         const html = document.documentElement;
         const isDark = html.classList.contains("dark");
-        console.log("Is dark?", isDark);
-
         if (isDark) {
           html.classList.remove("dark");
           localStorage.setItem("theme", "light");
-          console.log("Switched to light");
         } else {
           html.classList.add("dark");
           localStorage.setItem("theme", "dark");
-          console.log("Switched to dark");
         }
       }
+
+      // === MOBILE MENU TOGGLE ===
+      document.addEventListener("DOMContentLoaded", () => {
+        const menuBtn = document.getElementById("mobile-menu-button");
+        const menu = document.getElementById("mobile-menu");
+        if (menuBtn && menu) {
+          menuBtn.addEventListener("click", () => {
+            menu.classList.toggle("hidden");
+            const expanded = menuBtn.getAttribute("aria-expanded") === "true";
+            menuBtn.setAttribute("aria-expanded", String(!expanded));
+          });
+        }
+      });
     </script>
+
+    <!-- ✅ Chat, Dropdowns & Helpers -->
+    <script>
+      // === DROPDOWNS ===
+      document.querySelectorAll(".dropdown").forEach(function (dropdown) {
+        const toggle = dropdown.querySelector(".dropdown-toggle");
+        if (toggle && !toggle.hasAttribute("aria-label")) {
+          toggle.setAttribute("aria-label", "{{ _('Toggle dropdown menu') }}");
+        }
+        dropdown.addEventListener("mouseenter", function () {
+          const menu = dropdown.querySelector(".dropdown-menu");
+          new bootstrap.Dropdown(
+            dropdown.querySelector(".dropdown-toggle")
+          ).show();
+        });
+        dropdown.addEventListener("mouseleave", function () {
+          new bootstrap.Dropdown(
+            dropdown.querySelector(".dropdown-toggle")
+          ).hide();
+        });
+      });
+
+      // === CHAT FUNCTIONS ===
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function sendMessage(event) {
+        event.preventDefault();
+        const input = document.getElementById("chat-input");
+        const submitBtn = document.getElementById("chat-submit");
+        const messagesContainer = document.getElementById("chat-messages");
+        const typingIndicator = document.getElementById("typing-indicator");
+        const messageText = input.value.trim();
+        if (!messageText) return;
+
+        const userMessageHTML = `
+          <div class="flex justify-end">
+            <div class="max-w-[80%] bg-orange-600 text-white rounded-lg px-4 py-2">
+              ${escapeHtml(messageText)}
+            </div>
+          </div>
+        `;
+        messagesContainer.insertAdjacentHTML("beforeend", userMessageHTML);
+        input.value = "";
+        submitBtn.disabled = true;
+        typingIndicator.classList.remove("hidden");
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        fetch('{{ url_for("chat.send_message") }}', {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ message: messageText }),
+        })
+          .then((response) => response.text())
+          .then((html) => {
+            typingIndicator.classList.add("hidden");
+            messagesContainer.insertAdjacentHTML("beforeend", html);
+            submitBtn.disabled = false;
+            input.focus();
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+          })
+          .catch((error) => {
+            console.error("Chat error:", error);
+            typingIndicator.classList.add("hidden");
+            submitBtn.disabled = false;
+            alert('{{ _("Error sending message") }}');
+          });
+      }
+
+      function toggleChat() {
+        const chatWindow = document.getElementById("chat-window");
+        if (chatWindow.classList.contains("hidden")) {
+          fetch('{{ url_for("chat.toggle") }}')
+            .then((response) => response.text())
+            .then((html) => {
+              chatWindow.outerHTML = html;
+            });
+        } else {
+          chatWindow.outerHTML = '<div id="chat-window" class="hidden"></div>';
+        }
+      }
+
+      function minimizeChat() {
+        const chatWindow = document.getElementById("chat-window");
+        if (chatWindow) chatWindow.classList.add("hidden");
+      }
+
+      function clearChat() {
+        if (!confirm('{{ _("Clear all messages?") }}')) return;
+        fetch('{{ url_for("chat.clear_chat") }}', {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        })
+          .then(() => {
+            document.getElementById("chat-messages").innerHTML = "";
+            document.getElementById("chat-input").focus();
+          })
+          .catch((error) => {
+            console.error("Error clearing chat:", error);
+            alert('{{ _("Error clearing chat") }}');
+          });
+      }
+    </script>
+
+    <!-- ✅ Optional per-page scripts -->
+    {% block scripts %}{% endblock %}
   </body>
 </html>
-
-<script>
-  document.querySelectorAll(".dropdown").forEach(function (dropdown) {
-    const toggle = dropdown.querySelector(".dropdown-toggle");
-    if (toggle && !toggle.hasAttribute("aria-label")) {
-      toggle.setAttribute("aria-label", "{{ _('Toggle dropdown menu') }}");
-    }
-
-    dropdown.addEventListener("mouseenter", function () {
-      const menu = dropdown.querySelector(".dropdown-menu");
-      new bootstrap.Dropdown(dropdown.querySelector(".dropdown-toggle")).show();
-    });
-    dropdown.addEventListener("mouseleave", function () {
-      const menu = dropdown.querySelector(".dropdown-menu");
-      new bootstrap.Dropdown(dropdown.querySelector(".dropdown-toggle")).hide();
-    });
-  });
-  function escapeHtml(text) {
-    const div = document.createElement("div");
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  function sendMessage(event) {
-    event.preventDefault(); // Prevent default form submission
-
-    const input = document.getElementById("chat-input");
-    const submitBtn = document.getElementById("chat-submit");
-    const messagesContainer = document.getElementById("chat-messages");
-    const typingIndicator = document.getElementById("typing-indicator");
-
-    const messageText = input.value.trim();
-    if (!messageText) return;
-
-    // Show user message immediately
-    const userMessageHTML = `
-        <div class="flex justify-end">
-            <div class="max-w-[80%] bg-orange-600 text-white rounded-lg px-4 py-2">
-                ${escapeHtml(messageText)}
-            </div>
-        </div>
-    `;
-    messagesContainer.insertAdjacentHTML("beforeend", userMessageHTML);
-
-    // Clear input and disable button
-    input.value = "";
-    submitBtn.disabled = true;
-
-    // Show typing indicator
-    typingIndicator.classList.remove("hidden");
-
-    // Scroll to bottom
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-    // Send to backend
-    fetch('{{ url_for("chat.send_message") }}', {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        message: messageText,
-      }),
-    })
-      .then((response) => response.text())
-      .then((html) => {
-        // Hide typing indicator
-        typingIndicator.classList.add("hidden");
-
-        // Add assistant response
-        messagesContainer.insertAdjacentHTML("beforeend", html);
-
-        // Re-enable button and focus input
-        submitBtn.disabled = false;
-        input.focus();
-
-        // Scroll to bottom
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      })
-      .catch((error) => {
-        console.error("Chat error:", error);
-        typingIndicator.classList.add("hidden");
-        submitBtn.disabled = false;
-        alert('{{ _("Error sending message") }}');
-      });
-  }
-
-  function toggleChat() {
-    const chatWindow = document.getElementById("chat-window");
-    if (chatWindow.classList.contains("hidden")) {
-      // Load chat window
-      fetch('{{ url_for("chat.toggle") }}')
-        .then((response) => response.text())
-        .then((html) => {
-          chatWindow.outerHTML = html;
-        });
-    } else {
-      chatWindow.outerHTML = '<div id="chat-window" class="hidden"></div>';
-    }
-  }
-
-  function minimizeChat() {
-    const chatWindow = document.getElementById("chat-window");
-    if (chatWindow) {
-      chatWindow.classList.add("hidden");
-    }
-  }
-
-  function clearChat() {
-    if (!confirm('{{ _("Clear all messages?") }}')) {
-      return;
-    }
-
-    fetch('{{ url_for("chat.clear_chat") }}', {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then(() => {
-        document.getElementById("chat-messages").innerHTML = "";
-        document.getElementById("chat-input").focus();
-      })
-      .catch((error) => {
-        console.error("Error clearing chat:", error);
-        alert('{{ _("Error clearing chat") }}');
-      });
-  }
-</script>
