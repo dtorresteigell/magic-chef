@@ -130,7 +130,13 @@ _('Recipe App') }}{% endblock %} {% block content %}
         <div class="space-y-2">
           {% for entry in history %}
           <button
-            onclick="loadHistory({{ entry.ingredients|tojson }}, {{ entry.use_only|tojson }}, {{ entry.num_ideas }}, {{ entry.dishes|tojson }})"
+            onclick="loadHistoryData(this)"
+            data-entry='{{ {
+      "ingredients": entry.ingredients,
+      "use_only": entry.use_only,
+      "num_ideas": entry.num_ideas,
+      "dishes": entry.dishes
+    } | tojson | safe }}'
             class="w-full text-left text-sm bg-gray-50 hover:bg-gray-100 p-2 rounded"
           >
             <div class="text-gray-700 font-medium truncate">
@@ -140,6 +146,7 @@ _('Recipe App') }}{% endblock %} {% block content %}
               {{ entry.dishes|length }} ideas
             </div>
           </button>
+
           {% endfor %}
         </div>
       </div>
@@ -435,6 +442,9 @@ _('Recipe App') }}{% endblock %} {% block content %}
 
   function displayDishIdeas(ideas) {
     const container = document.getElementById("dish-ideas-list");
+    const initialState = document.getElementById("initial-state");
+    const ideasContainer = document.getElementById("dish-ideas-container");
+
     container.innerHTML = "";
 
     ideas.forEach((title, index) => {
@@ -442,37 +452,32 @@ _('Recipe App') }}{% endblock %} {% block content %}
       item.className =
         "flex items-center p-3 bg-gray-50 hover:bg-orange-50 rounded-lg cursor-pointer transition-colors border-2 border-transparent";
       item.innerHTML = `
-            <input type="radio" 
-                   name="dish-idea" 
-                   value="${title}" 
-                   class="mr-3 text-orange-600 focus:ring-orange-500"
-                   onchange="selectDish('${title.replace(/'/g, "\\'")}')">
-            <span class="text-gray-900">${title}</span>
-        `;
+        <input type="radio" 
+               name="dish-idea" 
+               value="${title}" 
+               class="mr-3 text-orange-600 focus:ring-orange-500"
+               onchange="selectDish('${title.replace(/'/g, "\\'")}')">
+        <span class="text-gray-900">${title}</span>
+      `;
       container.appendChild(item);
     });
 
     document.getElementById("ideas-count").textContent = ideas.length;
-    document.getElementById("initial-state").classList.add("hidden");
-    document.getElementById("dish-ideas-container").classList.remove("hidden");
+
+    // Hide initial state and show ideas
+    initialState.classList.add("hidden");
+    ideasContainer.classList.remove("hidden");
     document.getElementById("generate-recipe-btn").disabled = true;
     selectedDishTitle = null;
 
-    // Hide initial state, show results
-    initialState.classList.add("hidden");
-    ideasContainer.classList.remove("hidden");
-
-    // --- 💡 New: animate in + scroll for mobile ---
-    ideasContainer.classList.add("results-enter");
-    // force reflow, then activate animation
-    void ideasContainer.offsetWidth;
-    ideasContainer.classList.add("results-enter-active");
-
-    // Scroll into view on small screens
-    if (window.innerWidth < 640) {
+    // Scroll into view on mobile (smooth animation)
+    if (window.innerWidth < 768) {
       setTimeout(() => {
-        ideasContainer.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 200); // slight delay so animation starts first
+        ideasContainer.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 300);
     }
   }
 
@@ -650,6 +655,17 @@ _('Recipe App') }}{% endblock %} {% block content %}
     currentIngredients = ingredients;
     currentUseOnly = useOnly;
     displayDishIdeas(dishes);
+  }
+
+  function loadHistoryData(button) {
+    try {
+      const data = JSON.parse(button.dataset.entry);
+
+      loadHistory(data.ingredients, data.use_only, data.num_ideas, data.dishes);
+    } catch (err) {
+      console.error("Failed to parse history data:", err);
+      alert("Error loading history entry. Check console for details.");
+    }
   }
 
   function clearHistory() {
