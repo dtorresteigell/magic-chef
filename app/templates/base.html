@@ -2,11 +2,30 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1"
+    />
     <title>{% block title %}{{ _('Recipe App') }}{% endblock %}</title>
+
+    <script>
+      // Check for saved theme preference or default to 'light'
+      if (
+        localStorage.getItem("theme") === "dark" ||
+        (!localStorage.getItem("theme") &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        document.documentElement.classList.add("dark");
+      }
+    </script>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+    </script>
 
     <!-- htmx -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
@@ -16,6 +35,12 @@
       defer
       src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
     ></script>
+
+    <!-- Custom Dark Mode Styles -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/dark-mode.css') }}"
+    />
 
     <!-- Custom styles -->
     <style>
@@ -73,7 +98,10 @@
     </style>
   </head>
 
-  <body class="bg-gray-50 min-h-screen">
+  <body
+    class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen"
+  >
+    <!-- <body class="bg-gray-50 min-h-screen"> -->
     <!-- Navigation -->
     <nav class="bg-white shadow-md">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -95,6 +123,22 @@
                         <a href="{{ url_for('main.set_language', language='es') }}">Español</a>
                     </div>
                     {% endif %} -->
+          </div>
+          <div class="flex items-center">
+            <button
+              id="theme-toggle"
+              onclick="toggleTheme()"
+              class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none bg-gray-300 dark:bg-gray-600"
+            >
+              <span class="sr-only">Toggle theme</span>
+              <span
+                id="theme-switch"
+                class="inline-block w-4 h-4 transform transition-transform bg-white rounded-full translate-x-1 dark:translate-x-6"
+              >
+              </span>
+              <span class="absolute left-1 text-xs">🌙</span>
+              <span class="absolute right-1 text-xs">☀️</span>
+            </button>
           </div>
 
           <!-- Right section -->
@@ -233,6 +277,24 @@
         </p>
       </div>
     </footer>
+    <script>
+      function toggleTheme() {
+        console.log("Toggle clicked");
+        const html = document.documentElement;
+        const isDark = html.classList.contains("dark");
+        console.log("Is dark?", isDark);
+
+        if (isDark) {
+          html.classList.remove("dark");
+          localStorage.setItem("theme", "light");
+          console.log("Switched to light");
+        } else {
+          html.classList.add("dark");
+          localStorage.setItem("theme", "dark");
+          console.log("Switched to dark");
+        }
+      }
+    </script>
   </body>
 </html>
 

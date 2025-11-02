@@ -1,0 +1,197 @@
+/* Global dark mode overrides */
+.dark .bg-white {
+  background-color: rgb(26, 32, 46) !important; /* gray-900 */
+}
+
+.dark .border-gray-300 {
+  border-color: rgb(55, 65, 81) !important; /* gray-700 */
+}
+
+.dark .text-gray-900 {
+  color: rgb(255, 255, 255) !important; /* white */
+}
+
+.dark .text-gray-800 {
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+.dark .text-gray-700 {
+  color: rgb(209, 213, 219) !important; /* gray-300 */
+}
+
+.dark .text-gray-600 {
+  color: rgb(156, 163, 175) !important; /* gray-400 */
+}
+
+.dark .text-black {
+  color: rgb(255, 255, 255) !important; /* white */
+}
+
+.dark .text-orange-600 {
+  color: rgb(251, 146, 60) !important; /* orange-400 */
+}
+
+.dark .text-orange-800 {
+  color: rgb(254, 215, 170) !important; /* orange-200 */
+}
+
+/* Additional dark mode improvements */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: rgb(55, 65, 81) !important; /* gray-700 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: rgb(156, 163, 175) !important; /* gray-400 */
+}
+
+/* Hover states */
+.dark .hover\:bg-orange-50:hover {
+  background-color: rgb(124, 45, 18) !important; /* orange-900 */
+}
+
+.dark .hover\:bg-orange-200:hover {
+  background-color: rgb(194, 65, 12) !important; /* orange-700 */
+}
+
+.dark .hover\:text-orange-600:hover {
+  color: rgb(251, 146, 60) !important; /* orange-400 */
+}
+
+.dark .hover\:text-orange-800:hover {
+  color: rgb(254, 215, 170) !important; /* orange-200 */
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background-color: rgb(55, 65, 81) !important; /* gray-700 */
+}
+
+.dark .hover\:bg-gray-200:hover {
+  background-color: rgb(75, 85, 99) !important; /* gray-600 */
+}
+
+.dark .hover\:bg-gray-300:hover {
+  background-color: rgb(107, 114, 128) !important; /* gray-500 */
+}
+
+/* Background colors */
+.dark .bg-gray-50 {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+}
+
+.dark .bg-gray-100 {
+  background-color: rgb(55, 65, 81) !important; /* gray-700 */
+}
+
+.dark .bg-gray-200 {
+  background-color: rgb(75, 85, 99) !important; /* gray-600 */
+}
+
+.dark .bg-gray-300 {
+  background-color: rgb(107, 114, 128) !important; /* gray-500 */
+}
+
+.dark .bg-gray-400 {
+  background-color: rgb(156, 163, 175) !important; /* gray-400 */
+}
+
+.dark .bg-gray-600 {
+  background-color: rgb(75, 85, 99) !important; /* gray-600 */
+}
+
+.dark .bg-gray-700 {
+  background-color: rgb(55, 65, 81) !important; /* gray-700 */
+}
+
+.dark .bg-gray-900 {
+  background-color: rgb(17, 24, 39) !important; /* gray-950 */
+}
+
+/* Orange backgrounds - keep visible */
+.dark .bg-orange-50 {
+  background-color: rgb(124, 45, 18) !important; /* orange-900 */
+}
+
+.dark .bg-orange-100 {
+  background-color: rgb(154, 52, 18) !important; /* orange-800 */
+}
+
+.dark .bg-orange-200 {
+  background-color: rgb(194, 65, 12) !important; /* orange-700 */
+}
+
+/* Orange buttons stay orange (good contrast) */
+.dark .bg-orange-500,
+.dark .bg-orange-600,
+.dark .bg-orange-700 {
+  /* Keep original orange - already good contrast */
+}
+
+/* Blue backgrounds */
+.dark .bg-blue-50 {
+  background-color: rgb(30, 58, 138) !important; /* blue-900 */
+}
+
+.dark .bg-blue-100 {
+  background-color: rgb(29, 78, 216) !important; /* blue-700 */
+}
+
+.dark .bg-blue-600,
+.dark .bg-blue-700 {
+  /* Keep original - good contrast */
+}
+
+/* Green backgrounds */
+.dark .bg-green-50 {
+  background-color: rgb(20, 83, 45) !important; /* green-900 */
+}
+
+.dark .bg-green-100 {
+  background-color: rgb(21, 128, 61) !important; /* green-700 */
+}
+
+.dark .bg-green-600,
+.dark .bg-green-700 {
+  /* Keep original - good contrast */
+}
+
+/* Red backgrounds */
+.dark .bg-red-100 {
+  background-color: rgb(127, 29, 29) !important; /* red-900 */
+}
+
+.dark .bg-red-500,
+.dark .bg-red-600,
+.dark .bg-red-700 {
+  /* Keep original - good contrast */
+}
+
+/* Yellow backgrounds */
+.dark .bg-yellow-100 {
+  background-color: rgb(113, 63, 18) !important; /* yellow-900 */
+}
+
+/* Amber backgrounds */
+.dark .bg-amber-50 {
+  background-color: rgb(120, 53, 15) !important; /* amber-900 */
+}
+
+.dark .bg-amber-600,
+.dark .bg-amber-700 {
+  /* Keep original - good contrast */
+}
+
+/* Purple backgrounds */
+.dark .bg-purple-600,
+.dark .bg-purple-700 {
+  /* Keep original - good contrast */
+}
+/* Global dark mode overrides */

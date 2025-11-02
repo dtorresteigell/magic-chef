@@ -1,88 +1,108 @@
 {% if search_type %}
 <div class="mb-6">
-    {% if search_type == 'general' %}
-    <h2 class="text-2xl font-semibold text-gray-900">
-        {{ _('Results for "%(query)s"') % {'query': query} }}
-    </h2>
-    {% elif search_type == 'tag' %}
-    <h2 class="text-2xl font-semibold text-gray-900">
-        {{ _('Recipes tagged with "%(tag)s"') % {'tag': tag} }}
-    </h2>
-    {% endif %}
-    <p class="text-gray-600 mt-1">{{ _('%(count)d recipe(s) found') % {'count': results|length} }}</p>
+  {% if search_type == 'general' %}
+  <h2 class="text-2xl font-semibold text-gray-900">
+    {{ _('Results for "%(query)s"', query=query) }}
+  </h2>
+  {% elif search_type == 'tag' %}
+  <h2 class="text-2xl font-semibold text-gray-900">
+    {{ _('Recipes tagged with "%(tag)s"', tag=tag) }}
+  </h2>
+  {% endif %}
+  <p class="text-gray-600 mt-1">
+    {{ _('%(count)d recipe(s) found', count=results|length) }}
+  </p>
 </div>
 
 {% if results %}
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    {% for recipe in results %}
-    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-        <!-- Recipe Image -->
-        <a href="{{ url_for('main.recipe_detail', recipe_id=recipe.id) }}">
-            {% if recipe.image_filename %}
-            <img src="{{ url_for('static', filename='images/recipes/thumbnails/thumb_' + recipe.image_filename) }}"
-                alt="{{ recipe.title }}" class="w-full h-48 object-cover" loading="lazy"
-                onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/recipes/' + recipe.image_filename) }}';">
-            {% else %}
-            <div class="w-full h-48 bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
-                <span class="text-6xl">🍽️</span>
-            </div>
-            {% endif %}
-        </a>
+  {% for recipe in results %}
+  <div
+    class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+  >
+    <!-- Recipe Image -->
+    <a href="{{ url_for('main.recipe_detail', recipe_id=recipe.id) }}">
+      {% if recipe.image_filename %}
+      <img
+        src="{{ url_for('static', filename='images/recipes/thumbnails/thumb_' + recipe.image_filename) }}"
+        alt="{{ recipe.title }}"
+        class="w-full h-48 object-cover"
+        loading="lazy"
+        onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/recipes/' + recipe.image_filename) }}';"
+      />
+      {% else %}
+      <div
+        class="w-full h-48 bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center"
+      >
+        <span class="text-6xl">🍽️</span>
+      </div>
+      {% endif %}
+    </a>
 
-        <!-- Recipe Content -->
-        <div class="p-5">
-            <a href="{{ url_for('main.recipe_detail', recipe_id=recipe.id) }}" class="block mb-2">
-                <h2 class="text-xl font-semibold text-gray-900 hover:text-orange-600">
-                    {{ recipe.title }}
-                </h2>
-            </a>
+    <!-- Recipe Content -->
+    <div class="p-5">
+      <a
+        href="{{ url_for('main.recipe_detail', recipe_id=recipe.id) }}"
+        class="block mb-2"
+      >
+        <h2 class="text-xl font-semibold text-gray-900 hover:text-orange-600">
+          {{ recipe.title }}
+        </h2>
+      </a>
 
-            <p class="text-gray-600 text-sm mb-3 line-clamp-2">
-                {{ recipe.description }}
-            </p>
+      <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+        {{ recipe.description }}
+      </p>
 
-            <!-- Tags -->
-            {% if recipe.tags_list %}
-            <div class="flex flex-wrap gap-2 mb-3">
-                {% for tag in recipe.tags_list[:3] %}
-                <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded cursor-pointer hover:bg-orange-200"
-                    onclick="searchByTag('{{ tag }}')">
-                    {{ tag }}
-                </span>
-                {% endfor %}
-            </div>
-            {% endif %}
+      <!-- Tags -->
+      {% if recipe.tags_list %}
+      <div class="flex flex-wrap gap-2 mb-3">
+        {% for tag in recipe.tags_list[:3] %}
+        <span
+          class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded cursor-pointer hover:bg-orange-200"
+          onclick="searchByTag('{{ tag }}')"
+        >
+          {{ tag }}
+        </span>
+        {% endfor %}
+      </div>
+      {% endif %}
 
-            <!-- Meta Info -->
-            <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
-                <span>🍽️ {{ recipe.servings }} servings</span>
-                <span>📝 {{ recipe.instructions_list|length }} steps</span>
-            </div>
+      <!-- Meta Info -->
+      <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+        <span>🍽️ {{ recipe.servings }} servings</span>
+        <span>📝 {{ recipe.instructions_list|length }} steps</span>
+      </div>
 
-            <!-- Actions -->
-            <a href="{{ url_for('main.recipe_detail', recipe_id=recipe.id) }}"
-                class="block w-full bg-orange-600 text-white text-center py-2 rounded hover:bg-orange-700 text-sm font-medium">
-                View Recipe
-            </a>
-        </div>
+      <!-- Actions -->
+      <a
+        href="{{ url_for('main.recipe_detail', recipe_id=recipe.id) }}"
+        class="block w-full bg-orange-600 text-white text-center py-2 rounded hover:bg-orange-700 text-sm font-medium"
+      >
+        View Recipe
+      </a>
     </div>
-    {% endfor %}
+  </div>
+  {% endfor %}
 </div>
 {% else %}
 <div class="text-center py-12 bg-white rounded-lg shadow-md">
-    <div class="text-6xl mb-4">🔍</div>
-    <h2 class="text-2xl font-semibold text-gray-900 mb-2">No recipes found</h2>
-    <p class="text-gray-600 mb-4">Try a different search term</p>
-    <button onclick="clearSearch()"
-        class="inline-block px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">
-        Clear Search
-    </button>
+  <div class="text-6xl mb-4">🔍</div>
+  <h2 class="text-2xl font-semibold text-gray-900 mb-2">No recipes found</h2>
+  <p class="text-gray-600 mb-4">Try a different search term</p>
+  <button
+    onclick="clearSearch()"
+    class="inline-block px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+  >
+    Clear Search
+  </button>
 </div>
-{% endif %}
-{% else %}
+{% endif %} {% else %}
 <div class="text-center py-12 bg-white rounded-lg shadow-md">
-    <div class="text-6xl mb-4">🔎</div>
-    <h2 class="text-2xl font-semibold text-gray-900 mb-2">Start searching</h2>
-    <p class="text-gray-600">Enter a search term or click a tag to find recipes</p>
+  <div class="text-6xl mb-4">🔎</div>
+  <h2 class="text-2xl font-semibold text-gray-900 mb-2">Start searching</h2>
+  <p class="text-gray-600">
+    Enter a search term or click a tag to find recipes
+  </p>
 </div>
 {% endif %}

@@ -1,10 +1,12 @@
-{% if tags %}
-{% for tag in tags %}
-<button onclick="searchByTag('{{ tag }}')"
-    class="bg-orange-100 text-orange-800 text-xs px-3 py-1 rounded-full hover:bg-orange-200 transition-colors">
+<div class="mb-2">
+  {% if tags %} {% for tag in tags %}
+  <button
+    onclick="searchByTag('{{ tag }}')"
+    class="bg-orange-100 text-orange-800 text-xs px-3 py-1 rounded-full hover:bg-orange-200 transition-colors mb-1"
+  >
     {{ tag }}
-</button>
-{% endfor %}
-{% else %}
-<p class="text-sm text-gray-500">{{ _('No tags yet') }}</p>
-{% endif %}
+  </button>
+  {% endfor %} {% else %}
+  <p class="text-sm text-gray-500">{{ _('No tags yet') }}</p>
+  {% endif %}
+</div>
