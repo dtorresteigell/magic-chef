@@ -185,10 +185,11 @@ _('Recipe App') }}{% endblock %} {% block content %}
               <div class="flex-shrink-0 h-10 w-10">
                 {% if recipe.image_filename %}
                 <img
+                  loading="lazy"
                   class="h-10 w-10 rounded object-cover"
                   src="{{ url_for('static', filename='images/recipes/thumbnails/thumb_' + recipe.image_filename) }}"
                   alt="{{ recipe.title }}"
-                  onerror="this.src='{{ url_for('static', filename='images/recipes/' + recipe.image_filename) }}'"
+                  onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/recipes/' + recipe.image_filename) }}'"
                 />
                 {% else %}
                 <div
