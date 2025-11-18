@@ -142,8 +142,25 @@ def create_app():
     def load_user(user_id):
         return User.query.get(user_id)
 
-    # @app.context_processor
-    # def inject_user():
-    #     return dict(current_user=current_user)
+    @app.context_processor
+    def inject_notifications():
+        """Make recent notifications available to all templates"""
+        if current_user.is_authenticated:
+            from app.models import Notification
+
+            recent_notifications = (
+                Notification.query.filter_by(user_id=current_user.id)
+                .order_by(Notification.created_at.desc())
+                .limit(5)
+                .all()
+            )
+            unread_count = Notification.query.filter_by(
+                user_id=current_user.id, is_read=False
+            ).count()
+            return {
+                "recent_notifications": recent_notifications,
+                "unread_notifications_count": unread_count,
+            }
+        return {"recent_notifications": [], "unread_notifications_count": 0}
 
     return app

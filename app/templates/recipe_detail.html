@@ -395,6 +395,7 @@ App') }}{% endblock %} {% block content %}
 
 <div id="modal-container"></div>
 
+<!-- Replace the script section at the bottom of recipe_detail.html with this: -->
 <script>
   function togglePublic(recipeId) {
     fetch(`/recipes/${recipeId}/toggle-public`, {
@@ -448,6 +449,63 @@ App') }}{% endblock %} {% block content %}
         console.error('Error:', error);
         alert('{{ _('Error loading share modal') }}');
       });
+  }
+
+  // Global functions that will be called from the modal
+  window.closeShareModal = function() {
+    const modal = document.getElementById('share-modal');
+    if (modal) {
+      modal.remove();
+    }
+  }
+
+  window.filterContacts = function() {
+    const filter = document.getElementById('contact-filter');
+    if (!filter) return;
+
+    const filterValue = filter.value.toLowerCase();
+    const items = document.querySelectorAll('.contact-item');
+
+    items.forEach(item => {
+      const name = item.getAttribute('data-name');
+      if (name.includes(filterValue)) {
+        item.classList.remove('hidden');
+      } else {
+        item.classList.add('hidden');
+      }
+    });
+  }
+
+  window.shareRecipeWithContacts = function(recipeId) {
+    const checkboxes = document.querySelectorAll('input[name="share_users"]:checked');
+    const userIds = Array.from(checkboxes).map(cb => cb.value);
+
+    if (userIds.length === 0) {
+      alert('{{ _('Please select at least one contact') }}');
+      return;
+    }
+
+    fetch(`/contacts/share/${recipeId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ user_ids: userIds })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert(data.message);
+        closeShareModal();
+        location.reload();
+      } else {
+        alert(data.error);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('{{ _('Error sharing recipe') }}');
+    });
   }
 
   function unshareRecipe(recipeId, userId) {

@@ -241,6 +241,47 @@ def bulk_make_private():
     return redirect(url_for("main.settings"))
 
 
+@bp.route("/recipes/shared-with-me")
+@login_required
+def shared_with_me():
+    """View all recipes shared with current user"""
+    user_id = session.get("user_id")
+
+    # Get all recipe shares for current user
+    shares = RecipeShare.query.filter_by(shared_with_user_id=user_id).all()
+
+    # Group by user
+    recipes_by_user = {}
+    for share in shares:
+        recipe = share.recipe
+        if recipe:  # Make sure recipe still exists
+            owner = recipe.user
+            if owner.id not in recipes_by_user:
+                recipes_by_user[owner.id] = {"user": owner, "recipes": []}
+            recipes_by_user[owner.id]["recipes"].append(recipe)
+
+    # Also include contacts-only recipes
+    contacts = Contact.get_user_contacts(user_id)
+    for contact in contacts:
+        contact_recipes = Recipe.query.filter_by(
+            user_id=contact.id, is_contacts_only=True
+        ).all()
+
+        if contact_recipes:
+            if contact.id not in recipes_by_user:
+                recipes_by_user[contact.id] = {"user": contact, "recipes": []}
+            # Add only if not already in list (avoid duplicates)
+            existing_ids = {r.id for r in recipes_by_user[contact.id]["recipes"]}
+            for recipe in contact_recipes:
+                if recipe.id not in existing_ids:
+                    recipes_by_user[contact.id]["recipes"].append(recipe)
+
+    return render_template(
+        "shared_with_me.html",
+        recipes_by_user=recipes_by_user,
+    )
+
+
 @bp.route("/recipes/new", methods=["GET", "POST"])
 @login_required
 def recipe_new():

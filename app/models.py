@@ -26,6 +26,13 @@ class User(db.Model, UserMixin):
         "Recipe", back_populates="user", cascade="all, delete-orphan"
     )
 
+    notifications = db.relationship(
+        "Notification",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="dynamic",
+    )
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 

@@ -342,3 +342,69 @@ def unshare_recipe(recipe_id, user_id):
         return jsonify({"success": True, "message": _("Share removed")})
 
     return jsonify({"success": False, "error": _("Share not found")}), 404
+
+
+@bp.route("/<user_id>/recipes")
+@login_required
+def contact_recipes(user_id):
+    """View all recipes from a specific contact that current user can access"""
+    contact_user = User.query.get_or_404(user_id)
+
+    # Verify they are contacts
+    if not Contact.are_contacts(current_user.id, user_id):
+        flash(_("You must be contacts to view this user's recipes"), "warning")
+        return redirect(url_for("contacts.index"))
+
+    # Get all recipes current user can view from this contact
+    all_recipes = Recipe.query.filter_by(user_id=user_id).all()
+    viewable_recipes = [r for r in all_recipes if r.can_be_viewed_by(current_user.id)]
+
+    return render_template(
+        "contact_recipes.html",
+        contact=contact_user,
+        recipes=viewable_recipes,
+    )
+
+
+@bp.route("/notifications")
+@login_required
+def notifications():
+    """View all notifications"""
+    user_notifications = (
+        Notification.query.filter_by(user_id=current_user.id)
+        .order_by(Notification.created_at.desc())
+        .all()
+    )
+
+    return render_template(
+        "notifications.html",
+        notifications=user_notifications,
+    )
+
+
+@bp.route("/notifications/mark-read/<notification_id>", methods=["POST"])
+@login_required
+def mark_notification_read(notification_id):
+    """Mark a notification as read"""
+    notification = Notification.query.get_or_404(notification_id)
+
+    if notification.user_id != current_user.id:
+        return jsonify({"success": False, "error": _("Unauthorized")}), 403
+
+    notification.is_read = True
+    db.session.commit()
+
+    return jsonify({"success": True})
+
+
+@bp.route("/notifications/mark-all-read", methods=["POST"])
+@login_required
+def mark_all_read():
+    """Mark all notifications as read"""
+    Notification.query.filter_by(user_id=current_user.id, is_read=False).update(
+        {"is_read": True}
+    )
+    db.session.commit()
+
+    flash(_("All notifications marked as read"), "success")
+    return redirect(url_for("contacts.notifications"))

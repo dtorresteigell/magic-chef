@@ -163,6 +163,13 @@ App') }}{% endblock %} {% block content %}
         </div>
       </div>
 
+      <a
+        href="{{ url_for('contacts.contact_recipes', user_id=contact.id) }}"
+        class="w-full px-3 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 text-sm font-medium text-center block mb-2"
+      >
+        📖 {{ _('View Recipes') }}
+      </a>
+
       <form
         method="POST"
         action="{{ url_for('contacts.remove_contact', contact_id=contact.id) }}"
