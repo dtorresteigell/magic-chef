@@ -1,0 +1,123 @@
+<!-- Share Recipe Modal Content -->
+<div
+  class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+  id="share-modal"
+  onclick="if(event.target === this) closeShareModal()"
+>
+  <div
+    class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white"
+  >
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-medium text-gray-900">
+        {{ _('Share Recipe with Contacts') }}
+      </h3>
+      <button
+        type="button"
+        onclick="closeShareModal()"
+        class="text-gray-400 hover:text-gray-600"
+      >
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+
+    {% if contacts %}
+    <!-- Search filter -->
+    <div class="mb-4">
+      <input
+        type="text"
+        id="contact-filter"
+        placeholder="{{ _('Search contacts...') }}"
+        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm"
+        onkeyup="filterContacts()"
+      />
+    </div>
+
+    <!-- Contacts list -->
+    <div
+      class="max-h-96 overflow-y-auto mb-4 border border-gray-200 rounded-lg"
+    >
+      {% for contact in contacts %}
+      <label
+        class="flex items-center p-3 hover:bg-gray-50 cursor-pointer contact-item border-b border-gray-100 last:border-b-0"
+        data-name="{{ contact.get_display_name()|lower }} {{ contact.username|lower }}"
+      >
+        <input
+          type="checkbox"
+          name="share_users"
+          value="{{ contact.id }}"
+          class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+          {%
+          if
+          contact.id
+          in
+          shared_user_ids
+          %}checked{%
+          endif
+          %}
+        />
+        <div class="ml-3 flex items-center gap-2">
+          <div
+            class="w-8 h-8 rounded-full bg-orange-500 text-white font-bold flex items-center justify-center text-sm"
+          >
+            {{ contact.username[0]|upper }}
+          </div>
+          <div>
+            <p class="text-sm font-medium text-gray-900">
+              {{ contact.get_display_name() }}
+            </p>
+            <p class="text-xs text-gray-600">@{{ contact.username }}</p>
+          </div>
+          {% if contact.id in shared_user_ids %}
+          <span class="ml-auto text-xs text-green-600 font-medium"
+            >✓ {{ _('Shared') }}</span
+          >
+          {% endif %}
+        </div>
+      </label>
+      {% endfor %}
+    </div>
+
+    <!-- Action buttons -->
+    <div class="flex gap-3">
+      <button
+        type="button"
+        onclick="shareRecipeWithContacts('{{ recipe.id }}')"
+        class="flex-1 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 font-medium"
+      >
+        {{ _('Share Recipe') }}
+      </button>
+      <button
+        type="button"
+        onclick="closeShareModal()"
+        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
+      >
+        {{ _('Cancel') }}
+      </button>
+    </div>
+    {% else %}
+    <div class="text-center py-8">
+      <p class="text-gray-600 mb-4">
+        {{ _('You don\'t have any contacts yet.') }}
+      </p>
+      <a
+        href="{{ url_for('contacts.index') }}"
+        class="inline-block px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium"
+      >
+        {{ _('Add Contacts') }}
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>

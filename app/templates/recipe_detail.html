@@ -82,6 +82,65 @@ App') }}{% endblock %} {% block content %}
           >
             ✏️ {{ _('Edit Recipe') }}
           </a>
+          <div class="flex gap-2 flex-wrap">
+            <!-- Toggle Public -->
+            <button
+              onclick="togglePublic('{{ recipe.id }}')"
+              class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {% if recipe.is_public %}bg-green-600 text-white hover:bg-green-700{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}"
+              id="toggle-public-btn"
+            >
+              {% if recipe.is_public %}🌍 {{ _('Public') }}{% else %}🔒 {{
+              _('Make Public') }}{% endif %}
+            </button>
+
+            <!-- Toggle Contacts Only -->
+            <button
+              onclick="toggleContactsOnly('{{ recipe.id }}')"
+              class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {% if recipe.is_contacts_only %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}"
+              id="toggle-contacts-btn"
+            >
+              {% if recipe.is_contacts_only %}👥 {{ _('Contacts Only') }}{% else
+              %}👥 {{ _('Share with Contacts') }}{% endif %}
+            </button>
+
+            <!-- Share with Specific Users -->
+            <button
+              onclick="openShareModal('{{ recipe.id }}')"
+              class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm font-medium"
+            >
+              🔗 {{ _('Share with Users') }}
+            </button>
+          </div>
+
+          <!-- Show who it's shared with -->
+          {% if shared_users %}
+          <div class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <p class="text-sm font-medium text-blue-900 mb-2">
+              {{ _('Shared with:') }}
+            </p>
+            <div class="flex flex-wrap gap-2">
+              {% for user in shared_users %}
+              <span
+                class="inline-flex items-center gap-2 px-3 py-1 bg-white rounded-full text-sm"
+              >
+                <span
+                  class="w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center"
+                >
+                  {{ user.username[0]|upper }}
+                </span>
+                {{ user.get_display_name() }}
+                <button
+                  onclick="unshareRecipe('{{ recipe.id }}', '{{ user.id }}')"
+                  class="text-red-600 hover:text-red-700 ml-1"
+                  title="{{ _('Remove access') }}"
+                >
+                  ×
+                </button>
+              </span>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
 
           <!-- Translation Button with Dropdown -->
           <div class="relative inline-block" x-data="{ open: false }">
@@ -332,6 +391,147 @@ App') }}{% endblock %} {% block content %}
       window.location.href = `/recipes/${id}`;
     }, 1500); // wait for animation
   });
+</script>
+
+<div id="modal-container"></div>
+
+<!-- Replace the script section at the bottom of recipe_detail.html with this: -->
+<script>
+  function togglePublic(recipeId) {
+    fetch(`/recipes/${recipeId}/toggle-public`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert(data.error);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('{{ _('Error updating recipe') }}');
+    });
+  }
+
+  function toggleContactsOnly(recipeId) {
+    fetch(`/recipes/${recipeId}/toggle-contacts-only`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert(data.error);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('{{ _('Error updating recipe') }}');
+    });
+  }
+
+  function openShareModal(recipeId) {
+    fetch(`/contacts/share-modal/${recipeId}`)
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('modal-container').innerHTML = html;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('{{ _('Error loading share modal') }}');
+      });
+  }
+
+  // Global functions that will be called from the modal
+  window.closeShareModal = function() {
+    const modal = document.getElementById('share-modal');
+    if (modal) {
+      modal.remove();
+    }
+  }
+
+  window.filterContacts = function() {
+    const filter = document.getElementById('contact-filter');
+    if (!filter) return;
+
+    const filterValue = filter.value.toLowerCase();
+    const items = document.querySelectorAll('.contact-item');
+
+    items.forEach(item => {
+      const name = item.getAttribute('data-name');
+      if (name.includes(filterValue)) {
+        item.classList.remove('hidden');
+      } else {
+        item.classList.add('hidden');
+      }
+    });
+  }
+
+  window.shareRecipeWithContacts = function(recipeId) {
+    const checkboxes = document.querySelectorAll('input[name="share_users"]:checked');
+    const userIds = Array.from(checkboxes).map(cb => cb.value);
+
+    if (userIds.length === 0) {
+      alert('{{ _('Please select at least one contact') }}');
+      return;
+    }
+
+    fetch(`/contacts/share/${recipeId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ user_ids: userIds })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert(data.message);
+        closeShareModal();
+        location.reload();
+      } else {
+        alert(data.error);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('{{ _('Error sharing recipe') }}');
+    });
+  }
+
+  function unshareRecipe(recipeId, userId) {
+    if (!confirm('{{ _('Remove access for this user?') }}')) {
+      return;
+    }
+
+    fetch(`/contacts/unshare/${recipeId}/${userId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert(data.error);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('{{ _('Error removing access') }}');
+    });
+  }
 </script>
 
 {% endblock %}

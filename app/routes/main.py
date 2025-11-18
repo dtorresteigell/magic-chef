@@ -14,7 +14,7 @@ from flask import (
 from flask_login import current_user
 from flask_babel import gettext as _
 from app import db
-from app.models import Recipe
+from app.models import Recipe, Contact, RecipeShare, Notification
 from app.utils.image_handler import (
     process_recipe_image,
     delete_recipe_images,
@@ -116,31 +116,169 @@ def recipe_detail(recipe_id):
     """Recipe detail page"""
     recipe = Recipe.query.get_or_404(recipe_id)
 
-    # Check if current user already copied this recipe
-    recipe_already_copied = (
-        Recipe.query.filter_by(
-            user_id=session["user_id"], original_id=recipe.original_id
-        ).first()
-        is not None
-    )
-
     if "user_id" not in session:
         flash(_("Please log in first."), "warning")
         return redirect(url_for("auth.login"))
-    else:
-        user_id = session["user_id"]
 
-    # If recipe belongs to someone else and is not public
-    if (
-        recipe.user_id
-        and recipe.user_id != session.get("user_id")
-        and not recipe.is_public
-    ):  # Later if recipe.user_id != user_id and not recipe.is_public:
+    user_id = session["user_id"]
+
+    # Check if user can view this recipe
+    if not recipe.can_be_viewed_by(user_id):
         flash(_("You are not allowed to view this recipe."), "warning")
         return redirect(url_for("main.index"))
 
+    # Check if current user already copied this recipe
+    recipe_already_copied = (
+        Recipe.query.filter_by(user_id=user_id, original_id=recipe.original_id).first()
+        is not None
+    )
+
+    # Get shared users if owner
+    shared_users = []
+    if recipe.user_id == user_id:
+        shares = RecipeShare.query.filter_by(recipe_id=recipe.id).all()
+        shared_users = [share.shared_with for share in shares]
+
     return render_template(
-        "recipe_detail.html", recipe=recipe, recipe_already_copied=recipe_already_copied
+        "recipe_detail.html",
+        recipe=recipe,
+        recipe_already_copied=recipe_already_copied,
+        shared_users=shared_users,
+    )
+
+
+@bp.route("/recipes/<recipe_id>/toggle-public", methods=["POST"])
+@login_required
+def toggle_public(recipe_id):
+    """Toggle recipe public status"""
+    recipe = Recipe.query.get_or_404(recipe_id)
+
+    if recipe.user_id != session.get("user_id"):
+        return jsonify({"success": False, "error": _("Unauthorized")}), 403
+
+    recipe.is_public = not recipe.is_public
+    db.session.commit()
+
+    status = _("public") if recipe.is_public else _("private")
+    return jsonify(
+        {
+            "success": True,
+            "is_public": recipe.is_public,
+            "message": _("Recipe is now %(status)s") % {"status": status},
+        }
+    )
+
+
+@bp.route("/recipes/<recipe_id>/toggle-contacts-only", methods=["POST"])
+@login_required
+def toggle_contacts_only(recipe_id):
+    """Toggle recipe contacts-only status"""
+    recipe = Recipe.query.get_or_404(recipe_id)
+
+    if recipe.user_id != session.get("user_id"):
+        return jsonify({"success": False, "error": _("Unauthorized")}), 403
+
+    recipe.is_contacts_only = not recipe.is_contacts_only
+    db.session.commit()
+
+    status = (
+        _("visible to contacts")
+        if recipe.is_contacts_only
+        else _("private to contacts")
+    )
+    return jsonify(
+        {
+            "success": True,
+            "is_contacts_only": recipe.is_contacts_only,
+            "message": _("Recipe is now %(status)s") % {"status": status},
+        }
+    )
+
+
+@bp.route("/settings/bulk-make-public", methods=["POST"])
+@login_required
+def bulk_make_public():
+    """Make all user's recipes public"""
+    user_id = session.get("user_id")
+    recipes = Recipe.query.filter_by(user_id=user_id).all()
+
+    for recipe in recipes:
+        recipe.is_public = True
+
+    db.session.commit()
+    flash(_("All recipes are now public"), "success")
+    return redirect(url_for("main.settings"))
+
+
+@bp.route("/settings/bulk-make-contacts-only", methods=["POST"])
+@login_required
+def bulk_make_contacts_only():
+    """Make all user's recipes visible to contacts"""
+    user_id = session.get("user_id")
+    recipes = Recipe.query.filter_by(user_id=user_id).all()
+
+    for recipe in recipes:
+        recipe.is_contacts_only = True
+
+    db.session.commit()
+    flash(_("All recipes are now visible to your contacts"), "success")
+    return redirect(url_for("main.settings"))
+
+
+@bp.route("/settings/bulk-make-private", methods=["POST"])
+@login_required
+def bulk_make_private():
+    """Make all user's recipes private"""
+    user_id = session.get("user_id")
+    recipes = Recipe.query.filter_by(user_id=user_id).all()
+
+    for recipe in recipes:
+        recipe.is_public = False
+        recipe.is_contacts_only = False
+
+    db.session.commit()
+    flash(_("All recipes are now private"), "success")
+    return redirect(url_for("main.settings"))
+
+
+@bp.route("/recipes/shared-with-me")
+@login_required
+def shared_with_me():
+    """View all recipes shared with current user"""
+    user_id = session.get("user_id")
+
+    # Get all recipe shares for current user
+    shares = RecipeShare.query.filter_by(shared_with_user_id=user_id).all()
+
+    # Group by user
+    recipes_by_user = {}
+    for share in shares:
+        recipe = share.recipe
+        if recipe:  # Make sure recipe still exists
+            owner = recipe.user
+            if owner.id not in recipes_by_user:
+                recipes_by_user[owner.id] = {"user": owner, "recipes": []}
+            recipes_by_user[owner.id]["recipes"].append(recipe)
+
+    # Also include contacts-only recipes
+    contacts = Contact.get_user_contacts(user_id)
+    for contact in contacts:
+        contact_recipes = Recipe.query.filter_by(
+            user_id=contact.id, is_contacts_only=True
+        ).all()
+
+        if contact_recipes:
+            if contact.id not in recipes_by_user:
+                recipes_by_user[contact.id] = {"user": contact, "recipes": []}
+            # Add only if not already in list (avoid duplicates)
+            existing_ids = {r.id for r in recipes_by_user[contact.id]["recipes"]}
+            for recipe in contact_recipes:
+                if recipe.id not in existing_ids:
+                    recipes_by_user[contact.id]["recipes"].append(recipe)
+
+    return render_template(
+        "shared_with_me.html",
+        recipes_by_user=recipes_by_user,
     )
 
 

@@ -1,0 +1,111 @@
+{% extends "base.html" %} {% block title %}{{ _('Shared with Me') }} - {{
+_('Recipe App') }}{% endblock %} {% block content %}
+<div class="mb-8">
+  <h1 class="text-4xl font-bold text-gray-900 mb-2">
+    📬 {{ _('Recipes Shared with Me') }}
+  </h1>
+  <p class="text-gray-600">
+    {{ _('Browse recipes your contacts have shared with you') }}
+  </p>
+</div>
+
+{% if recipes_by_user %} {% for user_id, data in recipes_by_user.items() %}
+<div class="bg-white rounded-lg shadow-md p-6 mb-6">
+  <!-- User Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <div
+        class="w-12 h-12 rounded-full bg-orange-500 text-white font-bold flex items-center justify-center text-lg"
+      >
+        {{ data.user.username[0]|upper }}
+      </div>
+      <div>
+        <h2 class="text-xl font-semibold text-gray-900">
+          {{ data.user.get_display_name() }}
+        </h2>
+        <p class="text-sm text-gray-600">
+          @{{ data.user.username }} • {{ data.recipes|length }} {{
+          _('recipe(s)') }}
+        </p>
+      </div>
+    </div>
+    <a
+      href="{{ url_for('contacts.contact_recipes', user_id=data.user.id) }}"
+      class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm font-medium"
+    >
+      {{ _('View All') }} →
+    </a>
+  </div>
+
+  <!-- Recipes Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for recipe in data.recipes[:3] %}
+    <div
+      class="border border-gray-200 rounded-lg overflow-hidden hover:border-orange-500 transition-colors"
+    >
+      <a href="{{ url_for('main.recipe_detail', recipe_id=recipe.id) }}">
+        {% if recipe.image_filename %}
+        <img
+          src="{{ url_for('static', filename='images/recipes/thumbnails/thumb_' + recipe.image_filename) }}"
+          alt="{{ recipe.title }}"
+          class="w-full h-32 object-cover"
+          loading="lazy"
+          onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/recipes/' + recipe.image_filename) }}';"
+        />
+        {% else %}
+        <div
+          class="w-full h-32 bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center"
+        >
+          <span class="text-4xl">🍽️</span>
+        </div>
+        {% endif %}
+      </a>
+
+      <div class="p-4">
+        <a href="{{ url_for('main.recipe_detail', recipe_id=recipe.id) }}">
+          <h3
+            class="font-semibold text-gray-900 hover:text-orange-600 mb-2 line-clamp-1"
+          >
+            {{ recipe.title }}
+          </h3>
+        </a>
+        <p class="text-xs text-gray-600 line-clamp-2 mb-3">
+          {{ recipe.description }}
+        </p>
+        <div class="flex items-center justify-between text-xs text-gray-500">
+          <span>🍽️ {{ recipe.servings }}</span>
+          <span>📝 {{ recipe.instructions_list|length }}</span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if data.recipes|length > 3 %}
+  <div class="mt-4 text-center">
+    <a
+      href="{{ url_for('contacts.contact_recipes', user_id=data.user.id) }}"
+      class="text-sm text-orange-600 hover:text-orange-700 font-medium"
+    >
+      {{ _('View %(count)d more recipe(s)', count=data.recipes|length - 3) }} →
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endfor %} {% else %}
+<div class="text-center py-12 bg-white rounded-lg shadow-md">
+  <div class="text-6xl mb-4">📭</div>
+  <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+    {{ _('No shared recipes yet') }}
+  </h2>
+  <p class="text-gray-600 mb-6">
+    {{ _('When your contacts share recipes with you, they\'ll appear here') }}
+  </p>
+  <a
+    href="{{ url_for('contacts.index') }}"
+    class="inline-block px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium"
+  >
+    {{ _('Manage Contacts') }}
+  </a>
+</div>
+{% endif %} {% endblock %}

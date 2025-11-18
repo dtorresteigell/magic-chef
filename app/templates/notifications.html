@@ -1,0 +1,131 @@
+{% extends "base.html" %} {% block title %}{{ _('Notifications') }} - {{
+_('Recipe App') }}{% endblock %} {% block content %}
+<div class="mb-8">
+  <h1 class="text-4xl font-bold text-gray-900 mb-2">
+    🔔 {{ _('Notifications') }}
+  </h1>
+  <p class="text-gray-600">
+    {{ _('Stay updated with your recipe sharing activity') }}
+  </p>
+</div>
+
+{% if notifications %}
+<div class="flex justify-end mb-4">
+  <form method="POST" action="{{ url_for('contacts.mark_all_read') }}">
+    <button
+      type="submit"
+      class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm font-medium"
+    >
+      {{ _('Mark All as Read') }}
+    </button>
+  </form>
+</div>
+
+<div class="space-y-3">
+  {% for notification in notifications %} {% set data = notification.data_dict
+  %}
+  <div
+    class="bg-white rounded-lg shadow-md p-5 {% if not notification.is_read %}border-l-4 border-orange-500{% endif %}"
+  >
+    <div class="flex items-start justify-between">
+      <div class="flex-1">
+        {% if notification.type == 'contact_request' %}
+        <div class="flex items-start gap-4">
+          <span class="text-3xl">👤</span>
+          <div class="flex-1">
+            <p class="text-gray-900 mb-1">
+              <strong class="font-semibold"
+                >{{ data.get('requester_display_name') }}</strong
+              >
+              {{ _('sent you a contact request') }}
+            </p>
+            <p class="text-sm text-gray-500 mb-3">
+              {{ notification.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+            </p>
+            <a
+              href="{{ url_for('contacts.index') }}"
+              class="inline-block px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"
+            >
+              {{ _('View Requests') }} →
+            </a>
+          </div>
+        </div>
+
+        {% elif notification.type == 'contact_accepted' %}
+        <div class="flex items-start gap-4">
+          <span class="text-3xl">✅</span>
+          <div class="flex-1">
+            <p class="text-gray-900 mb-1">
+              <strong class="font-semibold"
+                >{{ data.get('accepter_display_name') }}</strong
+              >
+              {{ _('accepted your contact request') }}
+            </p>
+            <p class="text-sm text-gray-500 mb-3">
+              {{ notification.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+            </p>
+            <a
+              href="{{ url_for('contacts.index') }}"
+              class="inline-block px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm font-medium"
+            >
+              {{ _('View Contacts') }} →
+            </a>
+          </div>
+        </div>
+
+        {% elif notification.type == 'recipe_shared' %}
+        <div class="flex items-start gap-4">
+          <span class="text-3xl">📖</span>
+          <div class="flex-1">
+            <p class="text-gray-900 mb-1">
+              <strong class="font-semibold"
+                >{{ data.get('sharer_display_name') }}</strong
+              >
+              {{ _('shared a recipe with you') }}
+            </p>
+            <p class="text-md font-medium text-orange-600 mb-1">
+              {{ data.get('recipe_title') }}
+            </p>
+            <p class="text-sm text-gray-500 mb-3">
+              {{ notification.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+            </p>
+            <a
+              href="{{ url_for('main.recipe_detail', recipe_id=data.get('recipe_id')) }}"
+              class="inline-block px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm font-medium"
+            >
+              {{ _('View Recipe') }} →
+            </a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      {% if not notification.is_read %}
+      <form
+        method="POST"
+        action="{{ url_for('contacts.mark_notification_read', notification_id=notification.id) }}"
+        class="ml-4"
+      >
+        <button
+          type="submit"
+          class="text-orange-600 hover:text-orange-700 text-sm font-medium"
+        >
+          {{ _('Mark Read') }}
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-12 bg-white rounded-lg shadow-md">
+  <div class="text-6xl mb-4">🔔</div>
+  <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+    {{ _('No notifications yet') }}
+  </h2>
+  <p class="text-gray-600">
+    {{ _('You\'ll see contact requests and shared recipes here') }}
+  </p>
+</div>
+{% endif %} {% endblock %}

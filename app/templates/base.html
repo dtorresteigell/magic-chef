@@ -188,6 +188,11 @@
               >🔎 {{ _('Search') }}</a
             >
             <a
+              href="{{ url_for('main.shared_with_me') }}"
+              class="text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium"
+              >📬 {{ _('Shared with Me') }}</a
+            >
+            <a
               href="{{ url_for('pdf.select_recipes') }}"
               class="text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium"
               >📄 {{ _('Create Cookbook') }}</a
@@ -230,6 +235,171 @@
             </div>
 
             {% if current_user.is_authenticated %}
+            <!-- Notifications Bell -->
+            <div class="relative" x-data="{ open: false }">
+              <button
+                @click="open = !open"
+                class="relative p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full"
+              >
+                <svg
+                  class="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                  />
+                </svg>
+                {% if unread_notifications_count > 0 %}
+                <span
+                  class="absolute top-0 right-0 block h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center font-bold"
+                >
+                  {{ unread_notifications_count if unread_notifications_count <
+                  10 else '9+' }}
+                </span>
+                {% endif %}
+              </button>
+
+              <!-- Notifications Dropdown -->
+              <div
+                x-show="open"
+                @click.away="open = false"
+                x-cloak
+                class="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-y-auto"
+              >
+                <div
+                  class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center"
+                >
+                  <h3 class="font-semibold text-gray-900 dark:text-white">
+                    {{ _('Notifications') }}
+                  </h3>
+                  {% if unread_notifications_count > 0 %}
+                  <form
+                    method="POST"
+                    action="{{ url_for('contacts.mark_all_read') }}"
+                    class="inline"
+                  >
+                    <button
+                      type="submit"
+                      class="text-xs text-orange-600 hover:text-orange-700"
+                    >
+                      {{ _('Mark all read') }}
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
+
+                {% if recent_notifications %}
+                <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                  {% for notification in recent_notifications %}
+                  <div
+                    class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 {% if not notification.is_read %}bg-orange-50 dark:bg-orange-900/20{% endif %}"
+                  >
+                    {% set data = notification.data_dict %} {% if
+                    notification.type == 'contact_request' %}
+                    <div class="flex items-start gap-3">
+                      <span class="text-2xl">👤</span>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-sm text-gray-900 dark:text-white">
+                          <strong
+                            >{{ data.get('requester_display_name', 'Someone')
+                            }}</strong
+                          >
+                          {{ _('sent you a contact request') }}
+                        </p>
+                        <p
+                          class="text-xs text-gray-500 dark:text-gray-400 mt-1"
+                        >
+                          {{ notification.created_at.strftime('%B %d, %Y') }}
+                        </p>
+                        <a
+                          href="{{ url_for('contacts.index') }}"
+                          class="text-xs text-orange-600 hover:text-orange-700 mt-2 inline-block"
+                        >
+                          {{ _('View requests') }} →
+                        </a>
+                      </div>
+                    </div>
+
+                    {% elif notification.type == 'contact_accepted' %}
+                    <div class="flex items-start gap-3">
+                      <span class="text-2xl">✅</span>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-sm text-gray-900 dark:text-white">
+                          <strong
+                            >{{ data.get('accepter_display_name', 'Someone')
+                            }}</strong
+                          >
+                          {{ _('accepted your contact request') }}
+                        </p>
+                        <p
+                          class="text-xs text-gray-500 dark:text-gray-400 mt-1"
+                        >
+                          {{ notification.created_at.strftime('%B %d, %Y') }}
+                        </p>
+                      </div>
+                    </div>
+
+                    {% elif notification.type == 'recipe_shared' %}
+                    <div class="flex items-start gap-3">
+                      <span class="text-2xl">📖</span>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-sm text-gray-900 dark:text-white">
+                          <strong
+                            >{{ data.get('sharer_display_name', 'Someone')
+                            }}</strong
+                          >
+                          {{ _('shared a recipe with you') }}
+                        </p>
+                        <p
+                          class="text-xs font-medium text-orange-600 mt-1 truncate"
+                        >
+                          {{ data.get('recipe_title', 'A recipe') }}
+                        </p>
+                        <p
+                          class="text-xs text-gray-500 dark:text-gray-400 mt-1"
+                        >
+                          {{ notification.created_at.strftime('%B %d, %Y') }}
+                        </p>
+                        {% if data.get('recipe_id') %}
+                        <a
+                          href="{{ url_for('main.recipe_detail', recipe_id=data.get('recipe_id')) }}"
+                          class="text-xs text-orange-600 hover:text-orange-700 mt-2 inline-block"
+                        >
+                          {{ _('View recipe') }} →
+                        </a>
+                        {% endif %}
+                      </div>
+                    </div>
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                </div>
+
+                <div
+                  class="p-3 border-t border-gray-200 dark:border-gray-700 text-center"
+                >
+                  <a
+                    href="{{ url_for('contacts.notifications') }}"
+                    class="text-sm text-orange-600 hover:text-orange-700 font-medium"
+                  >
+                    {{ _('View all notifications') }}
+                  </a>
+                </div>
+                {% else %}
+                <div class="p-8 text-center">
+                  <p class="text-gray-500 dark:text-gray-400 text-sm">
+                    {{ _('No notifications') }}
+                  </p>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            {% endif %} {% if current_user.is_authenticated %}
             <!-- User menu -->
             <div class="relative group">
               <button
@@ -246,6 +416,11 @@
                   href="{{ url_for('main.recipe_new') }}"
                   class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-orange-50 hover:text-orange-600 text-sm"
                   >➕ {{ _('New Recipe') }}</a
+                >
+                <a
+                  href="{{ url_for('contacts.index') }}"
+                  class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-orange-50 hover:text-orange-600 text-sm"
+                  >👥 {{ _('My Contacts') }}</a
                 >
                 <a
                   href="{{ url_for('main.settings') }}"
@@ -276,6 +451,23 @@
         id="mobile-menu"
         class="sm:hidden hidden bg-white dark:bg-gray-800 px-2 pt-2 pb-3 space-y-1"
       >
+        {% if current_user.is_authenticated %}
+
+        <a
+          href="{{ url_for('contacts.notifications') }}"
+          class="flex items-center justify-between text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-base font-medium"
+        >
+          <span>🔔 {{ _('Notifications') }}</span>
+          {% if unread_notifications_count > 0 %}
+          <span
+            class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full"
+          >
+            {{ unread_notifications_count if unread_notifications_count < 10
+            else '9+' }}
+          </span>
+          {% endif %}
+        </a>
+        {% endif %}
         <a
           href="{{ url_for('main.index') }}"
           class="block text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-base font-medium"
@@ -292,6 +484,11 @@
           >🔎 {{ _('Search') }}</a
         >
         <a
+          href="{{ url_for('main.shared_with_me') }}"
+          class="text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium"
+          >📬 {{ _('Shared with Me') }}</a
+        >
+        <a
           href="{{ url_for('pdf.select_recipes') }}"
           class="block text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-base font-medium"
           >📄 {{ _('Create Cookbook') }}</a
@@ -306,6 +503,41 @@
           class="block text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-base font-medium"
           >📸 {{ _('Digitaliser') }}</a
         >
+        {% if current_user.is_authenticated %}
+        <div class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+
+        <a
+          href="{{ url_for('main.recipe_new') }}"
+          class="block text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-base font-medium"
+          >➕ {{ _('New Recipe') }}</a
+        >
+
+        <a
+          href="{{ url_for('contacts.index') }}"
+          class="block text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-base font-medium"
+          >👥 {{ _('My Contacts') }}</a
+        >
+
+        <a
+          href="{{ url_for('main.settings') }}"
+          class="block text-gray-700 dark:text-gray-200 hover:text-orange-600 px-3 py-2 rounded-md text-base font-medium"
+          >⚙️ {{ _('Settings') }}</a
+        >
+
+        <a
+          href="{{ url_for('auth.logout') }}"
+          class="block text-red-600 hover:text-red-700 px-3 py-2 rounded-md text-base font-medium"
+          >🚪 {{ _('Logout') }}</a
+        >
+        {% else %}
+        <div class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+
+        <a
+          href="{{ url_for('auth.login') }}"
+          class="block bg-orange-600 text-white hover:bg-orange-700 px-3 py-2 rounded-md text-base font-medium text-center"
+          >{{ _('Login') }}</a
+        >
+        {% endif %}
       </div>
     </nav>
     <!-- End Navigation -->

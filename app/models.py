@@ -19,11 +19,18 @@ class User(db.Model, UserMixin):
 
     first_name = db.Column(db.String(100))
     last_name = db.Column(db.String(100))
-    profile_pic = db.Column(db.Text)  # e.g., path to uploaded image
+    profile_pic = db.Column(db.Text)
     language = db.Column(db.String(5), default="en", nullable=False)
 
     recipes = db.relationship(
         "Recipe", back_populates="user", cascade="all, delete-orphan"
+    )
+
+    notifications = db.relationship(
+        "Notification",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="dynamic",
     )
 
     def set_password(self, password):
@@ -32,8 +39,169 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def get_display_name(self):
+        """Get user's display name (first name or username)"""
+        if self.first_name:
+            return self.first_name
+        return self.username
+
     def __repr__(self):
         return f"<User {self.username}>"
+
+
+# === CONTACT MODEL ===
+class Contact(db.Model):
+    """Contact/friendship model - mutual relationship between users"""
+
+    __tablename__ = "contacts"
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+
+    # User who sent the request
+    requester_id = db.Column(
+        db.String(36),
+        db.ForeignKey("users.id", name="fk_contacts_requester_id_users"),
+        nullable=False,
+        index=True,
+    )
+
+    # User who received the request
+    receiver_id = db.Column(
+        db.String(36),
+        db.ForeignKey("users.id", name="fk_contacts_receiver_id_users"),
+        nullable=False,
+        index=True,
+    )
+
+    # Status: 'pending', 'accepted', 'rejected'
+    status = db.Column(db.String(20), nullable=False, default="pending", index=True)
+
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
+
+    # Relationships
+    requester = db.relationship("User", foreign_keys=[requester_id])
+    receiver = db.relationship("User", foreign_keys=[receiver_id])
+
+    def __repr__(self):
+        return f"<Contact {self.requester_id} -> {self.receiver_id} ({self.status})>"
+
+    @staticmethod
+    def are_contacts(user_id_1, user_id_2):
+        """Check if two users are contacts (accepted)"""
+        return (
+            Contact.query.filter(
+                db.or_(
+                    db.and_(
+                        Contact.requester_id == user_id_1,
+                        Contact.receiver_id == user_id_2,
+                        Contact.status == "accepted",
+                    ),
+                    db.and_(
+                        Contact.requester_id == user_id_2,
+                        Contact.receiver_id == user_id_1,
+                        Contact.status == "accepted",
+                    ),
+                )
+            ).first()
+            is not None
+        )
+
+    @staticmethod
+    def get_user_contacts(user_id):
+        """Get all accepted contacts for a user"""
+        contacts = Contact.query.filter(
+            db.or_(
+                db.and_(Contact.requester_id == user_id, Contact.status == "accepted"),
+                db.and_(Contact.receiver_id == user_id, Contact.status == "accepted"),
+            )
+        ).all()
+
+        # Return the other user in each contact relationship
+        contact_users = []
+        for contact in contacts:
+            if contact.requester_id == user_id:
+                contact_users.append(contact.receiver)
+            else:
+                contact_users.append(contact.requester)
+
+        return contact_users
+
+
+# === RECIPE SHARE MODEL ===
+class RecipeShare(db.Model):
+    """Model for sharing specific recipes with specific users"""
+
+    __tablename__ = "recipe_shares"
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+
+    recipe_id = db.Column(
+        db.String(36),
+        db.ForeignKey("recipes.id", name="fk_recipe_shares_recipe_id_recipes"),
+        nullable=False,
+        index=True,
+    )
+
+    shared_with_user_id = db.Column(
+        db.String(36),
+        db.ForeignKey("users.id", name="fk_recipe_shares_user_id_users"),
+        nullable=False,
+        index=True,
+    )
+
+    shared_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    # Relationships
+    recipe = db.relationship("Recipe", back_populates="shares")
+    shared_with = db.relationship("User")
+
+    def __repr__(self):
+        return f"<RecipeShare recipe={self.recipe_id} with={self.shared_with_user_id}>"
+
+
+# === NOTIFICATION MODEL ===
+class Notification(db.Model):
+    """Notifications for various user actions"""
+
+    __tablename__ = "notifications"
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+
+    user_id = db.Column(
+        db.String(36),
+        db.ForeignKey("users.id", name="fk_notifications_user_id_users"),
+        nullable=False,
+        index=True,
+    )
+
+    # Type: 'contact_request', 'recipe_shared', 'contact_accepted'
+    type = db.Column(db.String(50), nullable=False, index=True)
+
+    # JSON data for the notification
+    data = db.Column(db.Text, nullable=True)
+
+    is_read = db.Column(db.Boolean, default=False, nullable=False, index=True)
+
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    # Relationship
+    user = db.relationship("User")
+
+    def __repr__(self):
+        return f"<Notification {self.type} for {self.user_id}>"
+
+    @property
+    def data_dict(self):
+        """Get notification data as dictionary"""
+        return json.loads(self.data) if self.data else {}
+
+    @data_dict.setter
+    def data_dict(self, value):
+        """Set notification data from dictionary"""
+        self.data = json.dumps(value, ensure_ascii=False)
 
 
 # === RECIPE MODEL ===
@@ -80,8 +248,9 @@ class Recipe(db.Model):
         db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
-    # Optional field for sharing in the future
+    # Sharing settings
     is_public = db.Column(db.Boolean, default=False)
+    is_contacts_only = db.Column(db.Boolean, default=False)
 
     original_id = db.Column(
         db.String,
@@ -89,9 +258,12 @@ class Recipe(db.Model):
         nullable=True,
     )
 
-    # Relationship
+    # Relationships
     user = db.relationship("User", back_populates="recipes")
     original = db.relationship("Recipe", remote_side=[id], backref="copies")
+    shares = db.relationship(
+        "RecipeShare", back_populates="recipe", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<Recipe '{self.title}' (id={self.id[:8]}...)>"
@@ -138,7 +310,7 @@ class Recipe(db.Model):
         self.tags = json.dumps(value, ensure_ascii=False) if value else None
 
     def to_dict(self):
-        """Convert recipe to dictionary for JSON responses (includes all model fields)"""
+        """Convert recipe to dictionary for JSON responses"""
         return {
             "id": self.id,
             "user_id": self.user_id,
@@ -151,19 +323,43 @@ class Recipe(db.Model):
             "tags": self.tags_list,
             "image_filename": self.image_filename,
             "is_public": self.is_public,
+            "is_contacts_only": self.is_contacts_only,
             "original_id": self.original_id,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
     def recipe_already_copied(self, user_id):
-        """Return True if the current recipe (or its original) has already been copied by this user"""
+        """Return True if the current recipe has already been copied by this user"""
         return (
             Recipe.query.filter_by(
                 user_id=user_id, original_id=self.original_id
             ).first()
             is not None
         )
+
+    def can_be_viewed_by(self, user_id):
+        """Check if a user can view this recipe"""
+        # Owner can always view
+        if self.user_id == user_id:
+            return True
+
+        # Public recipes can be viewed by anyone
+        if self.is_public:
+            return True
+
+        # Contacts-only recipes can be viewed by contacts
+        if self.is_contacts_only and Contact.are_contacts(self.user_id, user_id):
+            return True
+
+        # Specifically shared recipes
+        share = RecipeShare.query.filter_by(
+            recipe_id=self.id, shared_with_user_id=user_id
+        ).first()
+        if share:
+            return True
+
+        return False
 
     @staticmethod
     def from_dict(data, user_id=None):
@@ -175,6 +371,7 @@ class Recipe(db.Model):
             servings=data.get("servings", 6),
             image_filename=data.get("image_filename", ""),
             is_public=data.get("is_public", False),
+            is_contacts_only=data.get("is_contacts_only", False),
             original_id=data.get("original_id", None),
         )
         recipe.ingredients_dict = data.get("ingredients", {})
@@ -195,7 +392,7 @@ class Recipe(db.Model):
 
     @staticmethod
     def search_all_attributes(search_string, user_id=None):
-        """Search for a substring across all recipe attributes (case-insensitive)"""
+        """Search for a substring across all recipe attributes"""
         search_lower = search_string.lower()
         if user_id is not None:
             recipes = Recipe.query.filter_by(user_id=user_id).all()
@@ -204,27 +401,18 @@ class Recipe(db.Model):
         matching = []
 
         for recipe in recipes:
-            # Search in title
             if search_lower in recipe.title.lower():
                 matching.append(recipe)
                 continue
-
-            # Search in description
             if search_lower in recipe.description.lower():
                 matching.append(recipe)
                 continue
-
-            # Search in tags
             if any(search_lower in tag.lower() for tag in recipe.tags_list):
                 matching.append(recipe)
                 continue
-
-            # Search in notes
             if any(search_lower in note.lower() for note in recipe.notes_list):
                 matching.append(recipe)
                 continue
-
-            # Search in ingredients
             ingredients = recipe.ingredients_dict
             if any(
                 search_lower in key.lower() or search_lower in value.lower()
@@ -232,8 +420,6 @@ class Recipe(db.Model):
             ):
                 matching.append(recipe)
                 continue
-
-            # Search in instructions
             if any(
                 search_lower in instruction.lower()
                 for instruction in recipe.instructions_list
@@ -249,7 +435,7 @@ class ChatMessage(db.Model, UserMixin):
     __tablename__ = "chat_messages"
 
     id = db.Column(db.Integer, primary_key=True)
-    conversation_id = db.Column(db.String(36), nullable=False, index=True)  # UUID
+    conversation_id = db.Column(db.String(36), nullable=False, index=True)
     user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
     role = db.Column(db.String(20), nullable=False)  # 'user' or 'assistant'
     content = db.Column(db.Text, nullable=False)

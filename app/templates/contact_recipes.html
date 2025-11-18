@@ -1,0 +1,134 @@
+{% extends "base.html" %} {% block title %}{{ contact.get_display_name() }}'s {{
+_('Recipes') }} - {{ _('Recipe App') }}{% endblock %} {% block content %}
+<div class="mb-8">
+  <a
+    href="{{ url_for('contacts.index') }}"
+    class="inline-flex items-center text-orange-600 hover:text-orange-700 mb-4"
+  >
+    ← {{ _('Back to contacts') }}
+  </a>
+
+  <div class="flex items-center gap-4 mb-4">
+    <div
+      class="w-16 h-16 rounded-full bg-orange-500 text-white font-bold flex items-center justify-center text-2xl"
+    >
+      {{ contact.username[0]|upper }}
+    </div>
+    <div>
+      <h1 class="text-4xl font-bold text-gray-900">
+        {{ contact.get_display_name() }}'s {{ _('Recipes') }}
+      </h1>
+      <p class="text-gray-600">@{{ contact.username }}</p>
+    </div>
+  </div>
+</div>
+
+{% if recipes %}
+<div class="mb-4">
+  <p class="text-gray-600">
+    {{ _('%(count)d recipe(s) available', count=recipes|length) }}
+  </p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {% for recipe in recipes %}
+  <div
+    class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+  >
+    <!-- Recipe Image -->
+    <a href="{{ url_for('main.recipe_detail', recipe_id=recipe.id) }}">
+      {% if recipe.image_filename %}
+      <img
+        src="{{ url_for('static', filename='images/recipes/thumbnails/thumb_' + recipe.image_filename) }}"
+        alt="{{ recipe.title }}"
+        class="w-full aspect-[2/1] object-cover"
+        loading="lazy"
+        onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/recipes/' + recipe.image_filename) }}';"
+      />
+      {% else %}
+      <div
+        class="w-full aspect-[2/1] bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center"
+      >
+        <span class="text-6xl">🍽️</span>
+      </div>
+      {% endif %}
+    </a>
+
+    <!-- Recipe Content -->
+    <div class="p-5">
+      <a
+        href="{{ url_for('main.recipe_detail', recipe_id=recipe.id) }}"
+        class="block mb-2"
+      >
+        <h2 class="text-xl font-semibold text-gray-900 hover:text-orange-600">
+          {{ recipe.title }}
+        </h2>
+      </a>
+
+      <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+        {{ recipe.description }}
+      </p>
+
+      <!-- Tags -->
+      {% if recipe.tags_list %}
+      <div class="flex flex-wrap gap-2 mb-3">
+        {% for tag in recipe.tags_list[:3] %}
+        <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded">
+          {{ tag }}
+        </span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Meta Info -->
+      <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+        <span>🍽️ {{ recipe.servings }} {{ _('servings') }}</span>
+        <span>📝 {{ recipe.instructions_list|length }} {{ _('steps') }}</span>
+      </div>
+
+      <!-- Sharing badge -->
+      <div class="text-xs text-gray-500 mb-3">
+        {% if recipe.is_public %}
+        <span
+          class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded"
+        >
+          🌍 {{ _('Public') }}
+        </span>
+        {% elif recipe.is_contacts_only %}
+        <span
+          class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded"
+        >
+          👥 {{ _('Contacts Only') }}
+        </span>
+        {% else %}
+        <span
+          class="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded"
+        >
+          🔗 {{ _('Shared with you') }}
+        </span>
+        {% endif %}
+      </div>
+
+      <!-- Actions -->
+      <a
+        href="{{ url_for('main.recipe_detail', recipe_id=recipe.id) }}"
+        class="block w-full bg-orange-600 text-white text-center py-2 rounded hover:bg-orange-700 text-sm font-medium"
+      >
+        {{ _('View Recipe') }}
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-12 bg-white rounded-lg shadow-md">
+  <div class="text-6xl mb-4">📭</div>
+  <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+    {{ _('No recipes available') }}
+  </h2>
+  <p class="text-gray-600">
+    {{ contact.get_display_name() }} {{ _('hasn\'t shared any recipes with you
+    yet') }}
+  </p>
+</div>
+{% endif %} {% endblock %}
