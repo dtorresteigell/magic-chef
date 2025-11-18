@@ -86,5 +86,51 @@
             🔒 {{ _('Update Password') }}
         </button>
     </form>
+
+    <hr class="my-6 border-gray-300">
+
+    <!-- Recipe Sharing Settings -->
+    <div class="space-y-4">
+        <h3 class="text-xl font-semibold text-gray-700">{{ _('Recipe Sharing Settings') }}</h3>
+        <p class="text-sm text-gray-600">{{ _('Quickly change the visibility of all your recipes at once') }}</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Make all public -->
+            <form method="POST" action="{{ url_for('main.bulk_make_public') }}"
+                onsubmit="return confirm('{{ _('Make all your recipes publicly visible to everyone?') }}');">
+                <button
+                    type="submit"
+                    class="w-full bg-green-600 text-white rounded-md px-4 py-3 hover:bg-green-700 font-medium text-center">
+                    🌍 {{ _('Make All Public') }}
+                </button>
+            </form>
+            
+            <!-- Make all contacts-only -->
+            <form method="POST" action="{{ url_for('main.bulk_make_contacts_only') }}"
+                onsubmit="return confirm('{{ _('Make all your recipes visible to your contacts?') }}');">
+                <button
+                    type="submit"
+                    class="w-full bg-blue-600 text-white rounded-md px-4 py-3 hover:bg-blue-700 font-medium text-center">
+                    👥 {{ _('Share with Contacts') }}
+                </button>
+            </form>
+            
+            <!-- Make all private -->
+            <form method="POST" action="{{ url_for('main.bulk_make_private') }}"
+                onsubmit="return confirm('{{ _('Make all your recipes private (only you can see them)?') }}');">
+                <button
+                    type="submit"
+                    class="w-full bg-gray-600 text-white rounded-md px-4 py-3 hover:bg-gray-700 font-medium text-center">
+                    🔒 {{ _('Make All Private') }}
+                </button>
+            </form>
+        </div>
+        
+        <div class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <p class="text-sm text-blue-900">
+                <strong>{{ _('Note:') }}</strong> {{ _('These settings will apply to ALL your recipes. You can still change individual recipe settings from the recipe detail page.') }}
+            </p>
+        </div>
+    </div>
 </div>
 {% endblock %}

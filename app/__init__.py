@@ -119,6 +119,7 @@ def create_app():
         digitaliser,
         auth,
         chat,
+        contacts,
     )
 
     app.register_blueprint(main.bp)
@@ -129,6 +130,7 @@ def create_app():
     app.register_blueprint(digitaliser.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(chat.bp)
+    app.register_blueprint(contacts.bp)
 
     # Create database tables
     with app.app_context():

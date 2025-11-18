@@ -248,6 +248,11 @@
                   >➕ {{ _('New Recipe') }}</a
                 >
                 <a
+                  href="{{ url_for('contacts.index') }}"
+                  class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-orange-50 hover:text-orange-600 text-sm"
+                  >👥 {{ _('My Contacts') }}</a
+                >
+                <a
                   href="{{ url_for('main.settings') }}"
                   class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-orange-50 hover:text-orange-600 text-sm"
                   >⚙️ {{ _('Settings') }}</a
